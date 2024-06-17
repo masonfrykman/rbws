@@ -37,4 +37,15 @@ class AutoreleasingCache {
         ? data.length
         : 0;
   }
+
+  bool purge(String path) {
+    (Uint8List, Timer?)? removal = _store.remove(path);
+    if (removal == null) return false;
+
+    if (removal.$2 != null) {
+      removal.$2!.cancel();
+    }
+
+    return true;
+  }
 }
