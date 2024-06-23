@@ -38,19 +38,14 @@ class HTTPServerInstance {
     if (securityContext != null) {
       _serverSocket = await SecureServerSocket.bind(host, port, securityContext,
           supportedProtocols: ["http/1.1"]);
-      _serverSocket!.listen((socket) => _secureSocketOnListen(socket));
+      _serverSocket!.listen((socket) => _socketOnListen(socket));
       return;
     }
     _serverSocket = await ServerSocket.bind(host, port);
-    _serverSocket!.listen((socket) => _insecureSocketOnListen(socket));
+    _serverSocket!.listen((socket) => _socketOnListen(socket));
   }
 
-  void _secureSocketOnListen(SecureSocket connection) {
-    connection.setOption(SocketOption.tcpNoDelay, true);
-    connection.listen((data) => _conOnData(data, connection));
-  }
-
-  void _insecureSocketOnListen(Socket connection) {
+  void _socketOnListen(Socket connection) {
     connection.setOption(SocketOption.tcpNoDelay, true);
     connection.listen((data) => _conOnData(data, connection));
   }
