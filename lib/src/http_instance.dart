@@ -24,6 +24,14 @@ class HTTPServerInstance {
   SecurityContext? securityContext;
   String? referralToSecureServer;
 
+  dynamic Function(RBWSRequest)? onRequest;
+  dynamic Function(RBWSResponse)? onResponse;
+  FutureOr<RBWSResponse> Function(RBWSRequest) routeNotFound = (r) {
+    return RBWSResponse(404,
+        data: utf8.encode("404 Not Found"),
+        headers: {"Content-Type": "text/plain"});
+  };
+
   // ****************
   // * Internal Use *
   // ****************
@@ -34,6 +42,9 @@ class HTTPServerInstance {
   HTTPServerInstance(this.host, this.port,
       {this.generalServeRoot, this.staticRoutes, this.securityContext});
 
+  /// Causes the server to start listening for connections.
+  ///
+  /// If [securityContext] is not null, then it will use the [SecureServerSocket.bind] method. Otherwise, it will use [ServerSocket.bind].
   void start() async {
     if (securityContext != null) {
       _serverSocket = await SecureServerSocket.bind(host, port, securityContext,
@@ -56,7 +67,10 @@ class HTTPServerInstance {
       return;
     }
 
-    var response = await processRequest(req!);
+    var response = await processRequest(req);
+    if (onResponse != null) {
+      onResponse!(response);
+    }
     sender.add(response.generate11WithData());
     await sender.flush(); // Make sure we don't start sending other data.
     sender.destroy();
@@ -67,7 +81,18 @@ class HTTPServerInstance {
     // me know!
   }
 
+  /// Handles requests as they're recieved.
+  ///
+  /// If defined, [onRequest] is called before anything else.
+  /// If the server is insecure and [referralToSecureServer] is defined, it will attempt to upgrade requests with the header Upgrade-Insecure-Requests.
+  /// Static routes are matched, as defined in [staticRoutes].
+  /// If a static route cannot be matched and [generalServeRoot] is defined, it will attempt to load a file matching the requested path, starting at [generalServeRoot].
+  /// If [generalServeRoot] is not defined or it cannot be loaded using [AutoreleasingCache.grab], it will call and return [routeNotFound].
   Future<RBWSResponse> processRequest(RBWSRequest request) async {
+    if (onRequest != null) {
+      onRequest!(request);
+    }
+
     // Upgrade-Insecure-Requests
     if (securityContext == null &&
         request.headers["Upgrade-Insecure-Requests"]?.trim() == "1" &&
@@ -81,7 +106,7 @@ class HTTPServerInstance {
     // Check static routes
     var key = (request.method, request.path);
     if (staticRoutes != null && staticRoutes!.containsKey(key)) {
-      var getStatic = await staticRoutes![key]!(request);
+      RBWSResponse getStatic = await staticRoutes![key]!(request);
       if (debug) {
         getStatic.headers["x-dbg-route-type"] = "static";
       }
@@ -90,17 +115,14 @@ class HTTPServerInstance {
 
     // Dynamically load from storage.
     if (generalServeRoot == null) {
-      return RBWSResponse(404,
-          data: utf8.encode("404 Not Found"),
-          headers: {"Content-Type": "text/plain"});
+      return routeNotFound(request);
     }
 
-    var loadAttempt = await storage.grab("$generalServeRoot${request.path}",
+    Uint8List? loadAttempt = await storage.grab(
+        "$generalServeRoot${request.path}",
         ifNotCachedClearAfter: Duration(days: 1));
     if (loadAttempt == null) {
-      return RBWSResponse(404,
-          data: utf8.encode("404 Not Found"),
-          headers: {"Content-Type": "text/plain"});
+      return routeNotFound(request);
     }
     return RBWSResponse(200, data: loadAttempt, headers: {
       "Content-Type": lookupMimeType(request.path) ?? "application/octet-stream"
