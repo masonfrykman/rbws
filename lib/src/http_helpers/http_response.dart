@@ -6,7 +6,7 @@ class RBWSResponse {
 
   int status;
 
-  Map<String, String> _headers = {};
+  final Map<String, String> _headers = {};
 
   Map<String, String> get headers {
     var x = appDefaultHeaders;

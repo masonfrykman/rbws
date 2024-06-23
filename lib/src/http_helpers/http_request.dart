@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 class RBWSRequest {
+  // (this is basically a constant. not officially.)
+  // ignore: non_constant_identifier_names
   static int NEWLINE = utf8.encode("\n").first;
 
   String version;
