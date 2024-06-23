@@ -28,7 +28,7 @@ class AutoreleasingCache {
     if (_store.containsKey(path)) {
       return -1;
     }
-    if (await File(path).exists()) {
+    if (!await File(path).exists()) {
       return 0;
     }
 
@@ -36,6 +36,21 @@ class AutoreleasingCache {
     return store(File(path).absolute.path, data, clearAfter: clearAfter)
         ? data.length
         : 0;
+  }
+
+  Future<Uint8List?> grab(String path,
+      {bool cacheIfNotAlready = true, Duration? ifNotCachedClearAfter}) async {
+    if (!_store.containsKey(path)) {
+      if (!cacheIfNotAlready) {
+        return null;
+      }
+      var storeAction =
+          await storeFromDisk(path, clearAfter: ifNotCachedClearAfter);
+      if (storeAction == 0) {
+        return null;
+      }
+    }
+    return _store[path]!.$1;
   }
 
   bool purge(String path) {
