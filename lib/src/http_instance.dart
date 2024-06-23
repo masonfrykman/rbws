@@ -4,8 +4,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:mime/mime.dart';
 
-import 'http_request.dart';
-import 'http_response.dart';
+import 'http_helpers/http_request.dart';
+import 'http_helpers/http_response.dart';
 
 import 'autorelease_cache.dart';
 
