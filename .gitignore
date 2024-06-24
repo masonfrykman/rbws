@@ -3,3 +3,4 @@
 .dart_tool/
 .DS_Store
 local_cert/
+pubspec.lock

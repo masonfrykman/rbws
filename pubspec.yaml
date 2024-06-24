@@ -1,5 +1,5 @@
 name: rbws
-description: really bad web service
+description: really bad web service (another generic http/1.1 implementation)
 version: 1.0.0
 repository: https://github.com/masonfrykman/rbws
 
