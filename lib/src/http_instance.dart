@@ -24,8 +24,8 @@ class HTTPServerInstance {
   SecurityContext? securityContext;
   String? referralToSecureServer;
 
-  dynamic Function(RBWSRequest)? onRequest;
-  dynamic Function(RBWSResponse)? onResponse;
+  void Function(RBWSRequest)? onRequest;
+  void Function(RBWSResponse)? onResponse;
   FutureOr<RBWSResponse> Function(RBWSRequest) routeNotFound = (r) {
     return RBWSResponse(404,
         data: utf8.encode("404 Not Found"),
@@ -40,7 +40,11 @@ class HTTPServerInstance {
   dynamic _serverSocket;
 
   HTTPServerInstance(this.host, this.port,
-      {this.generalServeRoot, this.staticRoutes, this.securityContext});
+      {this.generalServeRoot,
+      this.staticRoutes,
+      this.securityContext,
+      this.onRequest,
+      this.onResponse});
 
   /// Causes the server to start listening for connections.
   ///

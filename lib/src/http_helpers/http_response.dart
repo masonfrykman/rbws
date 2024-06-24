@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'http_request.dart';
+
 class RBWSResponse {
+  RBWSRequest? toRequest;
+
   static Map<String, String> appDefaultHeaders = {};
 
   int status;
@@ -24,7 +28,8 @@ class RBWSResponse {
 
   Uint8List? data;
 
-  RBWSResponse(this.status, {this.data, Map<String, String>? headers}) {
+  RBWSResponse(this.status,
+      {this.data, Map<String, String>? headers, this.toRequest}) {
     if (headers != null) {
       this.headers = headers;
     }
