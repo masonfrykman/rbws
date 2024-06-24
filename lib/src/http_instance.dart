@@ -101,10 +101,12 @@ class HTTPServerInstance {
     if (securityContext == null &&
         request.headers["Upgrade-Insecure-Requests"]?.trim() == "1" &&
         referralToSecureServer != null) {
-      return RBWSResponse(303, headers: {
-        "Vary": "Upgrade-Insecure-Requests",
-        "Location": "$referralToSecureServer${request.path}"
-      });
+      return RBWSResponse(303,
+          headers: {
+            "Vary": "Upgrade-Insecure-Requests",
+            "Location": "$referralToSecureServer${request.path}"
+          },
+          toRequest: request);
     }
 
     // Check static routes
@@ -114,6 +116,7 @@ class HTTPServerInstance {
       if (debug) {
         getStatic.headers["x-dbg-route-type"] = "static";
       }
+      getStatic.toRequest = request;
       return getStatic;
     }
 
@@ -128,8 +131,12 @@ class HTTPServerInstance {
     if (loadAttempt == null) {
       return routeNotFound(request);
     }
-    return RBWSResponse(200, data: loadAttempt, headers: {
-      "Content-Type": lookupMimeType(request.path) ?? "application/octet-stream"
-    });
+    return RBWSResponse(200,
+        data: loadAttempt,
+        headers: {
+          "Content-Type":
+              lookupMimeType(request.path) ?? "application/octet-stream"
+        },
+        toRequest: request);
   }
 }
