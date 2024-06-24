@@ -16,6 +16,13 @@ class RBWSRequest {
   RBWSRequest(this.method, this.path, this.version,
       {this.data, required this.headers});
 
+  RBWSRequest.dataFromString(this.method, this.path, this.version,
+      {required this.headers, String? data}) {
+    if (data != null) {
+      this.data = utf8.encode(data);
+    }
+  }
+
   static RBWSRequest? from(Uint8List data) {
     // First line: Contains version, path, and method.
     int firstNewline = data.indexWhere((x) => x == NEWLINE);

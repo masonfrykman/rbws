@@ -35,6 +35,15 @@ class RBWSResponse {
     }
   }
 
+  RBWSResponse.dataFromString(this.status, String data,
+      {this.toRequest, Map<String, String>? headers}) {
+    if (headers != null) {
+      this.headers = headers;
+    }
+
+    this.data = utf8.encode(data);
+  }
+
   Uint8List generate11() {
     List<int> responseData = [];
 
