@@ -3,11 +3,15 @@ import 'dart:typed_data';
 
 import 'http_request.dart';
 
+/// Container for a generated response.
 class RBWSResponse {
+  /// The request that the response was generated for.
   RBWSRequest? toRequest;
 
+  /// List of headers defined by the application for EVERY response generated. Use lightly.
   static Map<String, String> appDefaultHeaders = {};
 
+  /// HTTP status code of the response (ex. 200 OK, 404 Not Found)
   int status;
 
   final Map<String, String> _headers = {};
@@ -23,9 +27,13 @@ class RBWSResponse {
 
   set headers(Map<String, String> val) => _headers.addAll(val);
 
+  /// Clears USER-DEFINED headers, will keep [appDefaultHeaders] intact.
   void clearHeaders() => _headers.clear();
+
+  /// Removes a USER-DEFINED header.
   void removeHeader(String key) => _headers.remove(key);
 
+  /// Body of the response.
   Uint8List? data;
 
   RBWSResponse(this.status,
@@ -35,6 +43,9 @@ class RBWSResponse {
     }
   }
 
+  /// Same as the default no-name constructor but takes the body in as a String instead of as a Uint8List.
+  /// 
+  /// This is just a conveinience constructor as it immediately encodes [data] to a [Uint8List].
   RBWSResponse.dataFromString(this.status, String data,
       {this.toRequest, Map<String, String>? headers}) {
     if (headers != null) {
@@ -44,6 +55,7 @@ class RBWSResponse {
     this.data = utf8.encode(data);
   }
 
+  /// Generates the response headers as raw [Uint8List] without the [data]. The 11 stands for the HTTP version "HTTP/1.1" as successive versions do things differently.
   Uint8List generate11() {
     List<int> responseData = [];
 
@@ -60,6 +72,7 @@ class RBWSResponse {
     return Uint8List.fromList(responseData);
   }
 
+  /// Same as [generate11] but includes the [data]. See [generate11] for more info.
   Uint8List generate11WithData() {
     Uint8List gen11 = generate11();
 
@@ -77,10 +90,7 @@ class RBWSResponse {
     return combined;
   }
 
-  Stream<int> slow11() async* {
-    yield* Stream.fromIterable(generate11WithData());
-  }
-
+  /// Returns the status code's corresponding description for use in HTTP/1.1 responses. (ex. 200 (int) -> 200 OK (String))
   static String statusToString(int status) {
     switch (status) {
       case 100:

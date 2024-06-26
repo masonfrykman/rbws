@@ -14,18 +14,29 @@ class HTTPServerInstance {
   // * General Configuration *
   // *************************
 
-  bool debug = false;
-
   dynamic host;
   int port;
   String? generalServeRoot;
+
+  /// Routes matched from requested path and method.
   Map<(RBWSMethod, String), FutureOr<RBWSResponse> Function(RBWSRequest)>?
       staticRoutes;
+
+  /// Security context used by [SecureServerSocket] to provide TLS support. Defining this will cause the server to be secure and to bind using [SecureServerSocket.bind]. If not defined, [ServerSocket.bind] will be used during [start] and all connections will be insecure.
+  /// 
+  /// It's STRONGLY RECOMMENDED that-if this server is public-facing-to spin up another [HTTPServerInstance] without a security context and to define [referralToSecureServer] so that connections can be upgraded from insecure to secure automatically.
   SecurityContext? securityContext;
+
+  /// Used by insecure servers (see [securityContext]) to redirect clients sending requests with the "Upgrade-Insecure-Requests: 1" header to a secure server.
   String? referralToSecureServer;
 
+  /// First call from [processRequest] when a request is recieved. This may not be called if [processRequest] is overriden.
   void Function(RBWSRequest)? onRequest;
+
+  /// First call when a response is returned from [processRequest].
   void Function(RBWSResponse)? onResponse;
+
+  /// Fallback handler for when every control flow path (static routes, loading files from filesystem, etc.) in [processRequest] fails.
   FutureOr<RBWSResponse> Function(RBWSRequest) routeNotFound = (r) {
     return RBWSResponse(404,
         data: utf8.encode("404 Not Found"),
@@ -36,6 +47,7 @@ class HTTPServerInstance {
   // * Internal Use *
   // ****************
 
+  /// Cache used by the server for files loaded from filesystem.
   AutoreleasingCache storage = AutoreleasingCache();
   dynamic _serverSocket;
 
@@ -88,9 +100,13 @@ class HTTPServerInstance {
   /// Handles requests as they're recieved.
   ///
   /// If defined, [onRequest] is called before anything else.
+  /// 
   /// If the server is insecure and [referralToSecureServer] is defined, it will attempt to upgrade requests with the header Upgrade-Insecure-Requests.
-  /// Static routes are matched, as defined in [staticRoutes].
+  /// 
+  /// Static routes are matched as defined in [staticRoutes].
+  /// 
   /// If a static route cannot be matched and [generalServeRoot] is defined, it will attempt to load a file matching the requested path, starting at [generalServeRoot].
+  /// 
   /// If [generalServeRoot] is not defined or it cannot be loaded using [AutoreleasingCache.grab], it will call and return [routeNotFound].
   Future<RBWSResponse> processRequest(RBWSRequest request) async {
     if (onRequest != null) {
@@ -113,9 +129,6 @@ class HTTPServerInstance {
     var key = (request.method, request.path);
     if (staticRoutes != null && staticRoutes!.containsKey(key)) {
       RBWSResponse getStatic = await staticRoutes![key]!(request);
-      if (debug) {
-        getStatic.headers["x-dbg-route-type"] = "static";
-      }
       getStatic.toRequest = request;
       return getStatic;
     }
