@@ -22,6 +22,9 @@ class RBWSResponse {
     if (data != null) {
       x["Content-Length"] = data!.length.toString();
     }
+    if (!x.containsKey("Server")) {
+      x["Server"] = "rbws";
+    }
     return x;
   }
 
