@@ -44,7 +44,7 @@ class RBWSResponse {
   }
 
   /// Same as the default no-name constructor but takes the body in as a String instead of as a Uint8List.
-  /// 
+  ///
   /// This is just a conveinience constructor as it immediately encodes [data] to a [Uint8List].
   RBWSResponse.dataFromString(this.status, String data,
       {this.toRequest, Map<String, String>? headers}) {

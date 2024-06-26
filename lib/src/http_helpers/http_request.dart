@@ -10,35 +10,31 @@ class RBWSRequest {
   /// The HTTP version. Most likely will be "1.1".
   String get version => _version;
   late String _version;
-  
 
   /// The requested path. Always starts with a "/".
   String get path => _path;
   late String _path;
-  
 
   /// HTTP method used.
   RBWSMethod get method => _method;
   late RBWSMethod _method;
-  
 
   /// HTTP headers included in the request. If the request includes duplicate header keys, it will default to only storing the first.
   Map<String, String> get headers => _headers;
   late Map<String, String> _headers;
-  
 
   /// The request's body.
   Uint8List? get data => _data;
   Uint8List? _data;
-  
+
   RBWSRequest(RBWSMethod method, String path, String version,
       {Uint8List? data, Map<String, String>? headers}) {
-        _data = data;
-        _headers = headers ?? {};
-        _method = method;
-        _path = path;
-        _version = version;
-      }
+    _data = data;
+    _headers = headers ?? {};
+    _method = method;
+    _path = path;
+    _version = version;
+  }
 
   RBWSRequest.dataFromString(RBWSMethod method, String path, String version,
       {Map<String, String>? headers, String? data}) {
@@ -51,8 +47,8 @@ class RBWSRequest {
     _headers = headers ?? {};
   }
 
-  /// Parses a request from raw data. 
-  /// 
+  /// Parses a request from raw data.
+  ///
   /// If it cannot discern a valid request, it returns null.
   static RBWSRequest? from(Uint8List data) {
     // First line: Contains version, path, and method.

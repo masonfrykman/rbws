@@ -9,6 +9,7 @@ import 'http_helpers/http_response.dart';
 
 import 'autorelease_cache.dart';
 
+/// The main object that accepts connections, recieves requests, and generates / sends responses.
 class HTTPServerInstance {
   // *************************
   // * General Configuration *
@@ -17,18 +18,16 @@ class HTTPServerInstance {
   dynamic host;
   int port;
 
-
   String? _generalServeRoot;
   String? get generalServeRoot => _generalServeRoot;
   set generalServeRoot(val) {
-    if(val == null) {
+    if (val == null) {
       return;
     }
     _generalServeRoot = val;
-    if(Platform.isWindows) {
+    if (Platform.isWindows) {
       _generalServeRoot = Directory(val).absolute.path;
     }
-
   }
 
   /// Routes matched from requested path and method.
@@ -36,7 +35,7 @@ class HTTPServerInstance {
       staticRoutes;
 
   /// Security context used by [SecureServerSocket] to provide TLS support. Defining this will cause the server to be secure and to bind using [SecureServerSocket.bind]. If not defined, [ServerSocket.bind] will be used during [start] and all connections will be insecure.
-  /// 
+  ///
   /// It's STRONGLY RECOMMENDED that-if this server is public-facing-to spin up another [HTTPServerInstance] without a security context and to define [referralToSecureServer] so that connections can be upgraded from insecure to secure automatically.
   SecurityContext? securityContext;
 
@@ -53,7 +52,8 @@ class HTTPServerInstance {
   FutureOr<RBWSResponse> Function(RBWSRequest) routeNotFound = (r) {
     return RBWSResponse(404,
         data: utf8.encode("404 Not Found"),
-        headers: {"Content-Type": "text/plain"}, toRequest: r);
+        headers: {"Content-Type": "text/plain"},
+        toRequest: r);
   };
 
   // ****************
@@ -70,31 +70,39 @@ class HTTPServerInstance {
       this.securityContext,
       this.onRequest,
       this.onResponse}) {
-        this.generalServeRoot = generalServeRoot; // Use the setter to fix Windows paths.
-      }
+    this.generalServeRoot =
+        generalServeRoot; // Use the setter to fix Windows paths.
+  }
 
   /// Causes the server to start listening for connections.
   ///
   /// If [securityContext] is not null, then it will use the [SecureServerSocket.bind] method. Otherwise, it will use [ServerSocket.bind].
   void start() async {
     if (securityContext != null) {
-        _serverSocket = await SecureServerSocket.bind(host, port, securityContext,
-            supportedProtocols: ["http/1.1"]);
+      _serverSocket = await SecureServerSocket.bind(host, port, securityContext,
+          supportedProtocols: ["http/1.1"]);
 
-        _serverSocket!.handleError((err) {
-          stderr.write("Secure server encountered an error!\n");
-          if(err is HandshakeException) {
-            stderr.write("\tThere was a problem with the TLS handshake.\n");
-            stderr.write("\t${err.message}\n");
-          } else if(err is Error) {
-            stderr.write("\tUnrecognized error:\n");
-            stderr.write("\t${err.stackTrace}\n");
-          }
-        }).listen((socket) => _socketOnListen(socket));
+      _serverSocket!.handleError((err) {
+        stderr.write("Secure server encountered an error!\n");
+        if (err is HandshakeException) {
+          stderr.write("\tThere was a problem with the TLS handshake.\n");
+          stderr.write("\t${err.message}\n");
+        } else if (err is Error) {
+          stderr.write("\tUnrecognized error:\n");
+          stderr.write("\t${err.stackTrace}\n");
+        }
+      }).listen((socket) => _socketOnListen(socket));
       return;
     }
     _serverSocket = await ServerSocket.bind(host, port);
     _serverSocket!.listen((socket) => _socketOnListen(socket));
+  }
+
+  void stop() async {
+    if (_serverSocket != null) {
+      await _serverSocket.close();
+      _serverSocket = null;
+    }
   }
 
   void _socketOnListen(Socket connection) {
@@ -125,13 +133,13 @@ class HTTPServerInstance {
   /// Handles requests as they're recieved.
   ///
   /// If defined, [onRequest] is called before anything else.
-  /// 
+  ///
   /// If the server is insecure and [referralToSecureServer] is defined, it will attempt to upgrade requests with the header Upgrade-Insecure-Requests.
-  /// 
+  ///
   /// Static routes are matched as defined in [staticRoutes].
-  /// 
+  ///
   /// If a static route cannot be matched and [generalServeRoot] is defined, it will attempt to load a file matching the requested path, starting at [generalServeRoot].
-  /// 
+  ///
   /// If [generalServeRoot] is not defined or it cannot be loaded using [AutoreleasingCache.grab], it will call and return [routeNotFound].
   Future<RBWSResponse> processRequest(RBWSRequest request) async {
     if (onRequest != null) {
