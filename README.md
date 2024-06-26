@@ -2,8 +2,7 @@
 
 *really bad web ~~server~~service*
 
-this is mostly for self-hosting my personal website, frykman.dev.
-use at your own peril.
+Another generic HTTP/1.1 server implementation using ```dart:io```.
 
 ## Examples
 
