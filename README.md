@@ -4,7 +4,7 @@
 
 Another generic HTTP/1.1 web server implementation using ```dart:io```.
 
-## Features
+## Features :D
 
 - Matches request paths to files from a defined document root.
     - **To enable:** Set the ```generalServeRoot``` property on an ```HTTPServerInstance```.
