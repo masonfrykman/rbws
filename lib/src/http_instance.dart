@@ -40,7 +40,7 @@ class HTTPServerInstance {
   FutureOr<RBWSResponse> Function(RBWSRequest) routeNotFound = (r) {
     return RBWSResponse(404,
         data: utf8.encode("404 Not Found"),
-        headers: {"Content-Type": "text/plain"});
+        headers: {"Content-Type": "text/plain"}, toRequest: r);
   };
 
   // ****************
@@ -63,9 +63,19 @@ class HTTPServerInstance {
   /// If [securityContext] is not null, then it will use the [SecureServerSocket.bind] method. Otherwise, it will use [ServerSocket.bind].
   void start() async {
     if (securityContext != null) {
-      _serverSocket = await SecureServerSocket.bind(host, port, securityContext,
-          supportedProtocols: ["http/1.1"]);
-      _serverSocket!.listen((socket) => _socketOnListen(socket));
+        _serverSocket = await SecureServerSocket.bind(host, port, securityContext,
+            supportedProtocols: ["http/1.1"]);
+
+        _serverSocket!.handleError((err) {
+          stderr.write("Secure server encountered an error!\n");
+          if(err is HandshakeException) {
+            stderr.write("\tThere was a problem with the TLS handshake.\n");
+            stderr.write("\t${err.message}\n");
+          } else if(err is Error) {
+            stderr.write("\tUnrecognized error:\n");
+            stderr.write("\t${err.stackTrace}\n");
+          }
+        }).listen((socket) => _socketOnListen(socket));
       return;
     }
     _serverSocket = await ServerSocket.bind(host, port);
