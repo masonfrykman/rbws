@@ -142,7 +142,7 @@ class HTTPServerInstance {
   /// If a static route cannot be matched and [generalServeRoot] is defined, it will attempt to load a file matching the requested path, starting at [generalServeRoot].
   ///
   /// If [generalServeRoot] is not defined or it cannot be loaded using [AutoreleasingCache.grab], it will call and return [routeNotFound].
-  Future<RBWSResponse> processRequest(RBWSRequest request) async {
+  FutureOr<RBWSResponse> processRequest(RBWSRequest request) {
     if (onRequest != null) {
       onRequest!(request);
     }
@@ -159,12 +159,25 @@ class HTTPServerInstance {
           toRequest: request);
     }
 
+    switch (request.method) {
+      case RBWSMethod.get:
+        return processGETRequest(request);
+      case RBWSMethod.post:
+        return processPOSTRequest(request);
+      case RBWSMethod.put:
+        return processPUTRequest(request);
+      case RBWSMethod.delete:
+        return processDELETERequest(request);
+      default:
+        return RBWSResponse(405);
+    }
+  }
+
+  Future<RBWSResponse> processGETRequest(RBWSRequest request) async {
     // Check static routes
-    var key = (request.method, request.path);
-    if (staticRoutes != null && staticRoutes!.containsKey(key)) {
-      RBWSResponse getStatic = await staticRoutes![key]!(request);
-      getStatic.toRequest = request;
-      return getStatic;
+    RBWSResponse? match = await tryToMatchStaticRoute(request);
+    if (match != null) {
+      return match;
     }
 
     // Dynamically load from storage.
@@ -185,5 +198,42 @@ class HTTPServerInstance {
               lookupMimeType(request.path) ?? "application/octet-stream"
         },
         toRequest: request);
+  }
+
+  Future<RBWSResponse> processPOSTRequest(RBWSRequest request) async {
+    RBWSResponse? match = await tryToMatchStaticRoute(request);
+    if (match != null) {
+      return match;
+    }
+    return RBWSResponse.dataFromString(
+        404, "The requested resource was unavailable.");
+  }
+
+  Future<RBWSResponse> processPUTRequest(RBWSRequest request) async {
+    RBWSResponse? match = await tryToMatchStaticRoute(request);
+    if (match != null) {
+      return match;
+    }
+    return RBWSResponse.dataFromString(
+        404, "The requested resource was unavailable.");
+  }
+
+  Future<RBWSResponse> processDELETERequest(RBWSRequest request) async {
+    RBWSResponse? match = await tryToMatchStaticRoute(request);
+    if (match != null) {
+      return match;
+    }
+    return RBWSResponse.dataFromString(
+        404, "The requested resource was unavailable.");
+  }
+
+  Future<RBWSResponse?> tryToMatchStaticRoute(RBWSRequest request) async {
+    var key = (request.method, request.path);
+    if (staticRoutes != null && staticRoutes!.containsKey(key)) {
+      RBWSResponse getStatic = await staticRoutes![key]!(request);
+      getStatic.toRequest = request;
+      return getStatic;
+    }
+    return null;
   }
 }
