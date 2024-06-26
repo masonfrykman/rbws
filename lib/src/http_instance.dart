@@ -168,6 +168,12 @@ class HTTPServerInstance {
         return processPUTRequest(request);
       case RBWSMethod.delete:
         return processDELETERequest(request);
+      case RBWSMethod.head:
+        var response = processGETRequest(request).then((response) {
+          response.data = null;
+          return response;
+        });
+        return response;
       default:
         return RBWSResponse(405);
     }

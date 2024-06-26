@@ -126,6 +126,7 @@ enum RBWSMethod {
   post,
   put,
   delete,
+  head,
   unrecognized;
 
   @override
