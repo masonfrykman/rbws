@@ -18,8 +18,9 @@ class HTTPServerInstance {
   dynamic host;
   int port;
 
-  String? _generalServeRoot;
+  /// The root directory for where [processGETRequest] will attempt to load a file from the filesystem and cache it, using [storage].
   String? get generalServeRoot => _generalServeRoot;
+  String? _generalServeRoot;
   set generalServeRoot(val) {
     if (val == null) {
       return;
@@ -99,6 +100,7 @@ class HTTPServerInstance {
     _serverSocket!.listen((socket) => _socketOnListen(socket));
   }
 
+  /// Stops accepting connections.
   void stop() async {
     if (_serverSocket != null) {
       await _serverSocket.close();
@@ -137,11 +139,8 @@ class HTTPServerInstance {
   ///
   /// If the server is insecure and [referralToSecureServer] is defined, it will attempt to upgrade requests with the header Upgrade-Insecure-Requests.
   ///
-  /// Static routes are matched as defined in [staticRoutes].
-  ///
-  /// If a static route cannot be matched and [generalServeRoot] is defined, it will attempt to load a file matching the requested path, starting at [generalServeRoot].
-  ///
-  /// If [generalServeRoot] is not defined or it cannot be loaded using [AutoreleasingCache.grab], it will call and return [routeNotFound].
+  /// Branches off into method-specific functions (ex. GET -> [processGETRequest]).
+  /// If the method is HEAD, it will call [processGETRequest] for the path and return the response but stripped of data.
   FutureOr<RBWSResponse> processRequest(RBWSRequest request) {
     if (onRequest != null) {
       onRequest!(request);
@@ -183,6 +182,10 @@ class HTTPServerInstance {
     }
   }
 
+  /// Processes GET requests handled by [processRequest].
+  ///
+  /// It will first attempt to match a static route, then, if unsuccessful, will attmept to load a file from the [generalServeRoot] using it's [storage].
+  /// If [storage] loads sucessfully, it will keep the file for [defaultStorageLength], if defined.
   Future<RBWSResponse> processGETRequest(RBWSRequest request) async {
     // Check static routes
     RBWSResponse? match = await tryToMatchStaticRoute(request);
@@ -210,6 +213,7 @@ class HTTPServerInstance {
         toRequest: request);
   }
 
+  /// Processes POST requests handled by [processRequest]
   Future<RBWSResponse> processPOSTRequest(RBWSRequest request) async {
     RBWSResponse? match = await tryToMatchStaticRoute(request);
     if (match != null) {
@@ -219,6 +223,7 @@ class HTTPServerInstance {
         404, "The requested resource was unavailable.");
   }
 
+  /// Processes PUT requests handled by [processRequest]
   Future<RBWSResponse> processPUTRequest(RBWSRequest request) async {
     RBWSResponse? match = await tryToMatchStaticRoute(request);
     if (match != null) {
@@ -228,6 +233,7 @@ class HTTPServerInstance {
         404, "The requested resource was unavailable.");
   }
 
+  /// Processes DELETE requests handled by [processRequest]
   Future<RBWSResponse> processDELETERequest(RBWSRequest request) async {
     RBWSResponse? match = await tryToMatchStaticRoute(request);
     if (match != null) {
@@ -237,6 +243,8 @@ class HTTPServerInstance {
         404, "The requested resource was unavailable.");
   }
 
+  /// Attempts to find a static route in [staticRoutes] that matches the [request] method and path.
+  /// If successful, it will call the handler and return the response.
   Future<RBWSResponse?> tryToMatchStaticRoute(RBWSRequest request) async {
     var key = (request.method, request.path);
     if (staticRoutes != null && staticRoutes!.containsKey(key)) {
