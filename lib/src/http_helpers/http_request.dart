@@ -146,6 +146,8 @@ enum RBWSMethod {
         return put;
       case "delete":
         return delete;
+      case "head":
+        return head;
     }
 
     return unrecognized;
