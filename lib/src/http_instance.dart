@@ -24,10 +24,7 @@ class HTTPServerInstance {
     if (val == null) {
       return;
     }
-    _generalServeRoot = val;
-    if (Platform.isWindows) {
-      _generalServeRoot = Directory(val).absolute.path;
-    }
+    _generalServeRoot = Directory(val).absolute.path;
   }
 
   /// Routes matched from requested path and method.
