@@ -2,7 +2,27 @@
 
 *really bad web ~~server~~service*
 
-Another generic HTTP/1.1 server implementation using ```dart:io```.
+Another generic HTTP/1.1 web server implementation using ```dart:io```.
+
+## Features
+
+- Matches request paths to files from a defined document root.
+    - **To enable:** Set the ```generalServeRoot``` property on an ```HTTPServerInstance```.
+- Stores files loaded from filesystem in a cache that will clear the file after an arbitrary amount of time.
+    - The amount of time defaults to a day. The duration can be changed by setting ```defaultStorageLength```.
+- Matches request paths to static handler functions.
+    - **To enable:** Populate the ```staticRoutes``` map on an ```HTTPServerInstance```.
+- Redirects insecure requests to a secure version.
+    - **To enable:** Set ```referralToSecureServer``` on an ```HTTPServerInstance``` where ```securityContext == null```.
+    - **Caveat:** Requests will only be upgraded if they have the header ```Upgrade-Insecure-Requests: 1```
+
+## A note on the License
+
+The RBWS package is licensed under the [GNU Lesser General Public License v3.0](https://www.gnu.org/licenses/lgpl-3.0.txt) (you can also find it in the LICENSE file of the GitHub repo)
+
+**What this means for you:** you can use the pub utility to get the package, import it into another application, and release that code built on this library under whatever license your heart desires.
+
+However, if any of the source code of this library is changed, that subsequent source code must be released and be easily accessible under the LGPL or GPL. Thats it! :)
 
 ## Examples
 

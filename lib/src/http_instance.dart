@@ -53,6 +53,9 @@ class HTTPServerInstance {
         toRequest: r);
   };
 
+  /// The amount of time to store a file matched from a document root in [AutoreleasingCache]. See [AutoreleasingCache] for more info on that mechanism.
+  Duration? defaultStorageLength;
+
   // ****************
   // * Internal Use *
   // ****************
@@ -66,7 +69,8 @@ class HTTPServerInstance {
       this.staticRoutes,
       this.securityContext,
       this.onRequest,
-      this.onResponse}) {
+      this.onResponse,
+      this.defaultStorageLength = const Duration(days: 1)}) {
     this.generalServeRoot =
         generalServeRoot; // Use the setter to fix Windows paths.
   }
@@ -170,7 +174,7 @@ class HTTPServerInstance {
 
     Uint8List? loadAttempt = await storage.grab(
         "$generalServeRoot${request.path}",
-        ifNotCachedClearAfter: Duration(days: 1));
+        ifNotCachedClearAfter: defaultStorageLength);
     if (loadAttempt == null) {
       return routeNotFound(request);
     }
