@@ -4,3 +4,5 @@
 .DS_Store
 local_cert/
 pubspec.lock
+
+example/cert
