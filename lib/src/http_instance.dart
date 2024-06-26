@@ -16,7 +16,20 @@ class HTTPServerInstance {
 
   dynamic host;
   int port;
-  String? generalServeRoot;
+
+
+  String? _generalServeRoot;
+  String? get generalServeRoot => _generalServeRoot;
+  set generalServeRoot(val) {
+    if(val == null) {
+      return;
+    }
+    _generalServeRoot = val;
+    if(Platform.isWindows) {
+      _generalServeRoot = Directory(val).absolute.path;
+    }
+
+  }
 
   /// Routes matched from requested path and method.
   Map<(RBWSMethod, String), FutureOr<RBWSResponse> Function(RBWSRequest)>?
@@ -52,11 +65,13 @@ class HTTPServerInstance {
   dynamic _serverSocket;
 
   HTTPServerInstance(this.host, this.port,
-      {this.generalServeRoot,
+      {String? generalServeRoot,
       this.staticRoutes,
       this.securityContext,
       this.onRequest,
-      this.onResponse});
+      this.onResponse}) {
+        this.generalServeRoot = generalServeRoot; // Use the setter to fix Windows paths.
+      }
 
   /// Causes the server to start listening for connections.
   ///
