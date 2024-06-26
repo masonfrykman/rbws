@@ -78,7 +78,10 @@ class AutoreleasingCache {
         return null;
       }
     }
-    return _store[path]!.$1;
+    if(_store[path] != null) {
+      return _store[path]!.$1;
+    }
+    return null;
   }
 
   /// Removes data from the store via it's corresponding path.
