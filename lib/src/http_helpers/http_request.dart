@@ -62,7 +62,7 @@ class RBWSRequest {
 
     RBWSMethod method = RBWSMethod.fromString(tokenizedFL.first);
     if (method == RBWSMethod.unrecognized) {
-      return null;
+      return RBWSRequest(RBWSMethod.unrecognized, "", "1.1");
     }
     String path = tokenizedFL[1];
     String version = tokenizedFL[2].split("/").last;
