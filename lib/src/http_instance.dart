@@ -168,7 +168,9 @@ class HTTPServerInstance {
       case RBWSMethod.delete:
         return processDELETERequest(request);
       case RBWSMethod.head:
-        var response = processGETRequest(request).then((response) {
+        var repHead = RBWSRequest(RBWSMethod.get, request.path, "1.1",
+            headers: request.headers, data: request.data);
+        var response = processGETRequest(repHead).then((response) {
           // The content-type header gets dynamically added on when the getter
           // is accessed. So, we have to save it.
           var ct = response.headers["Content-Type"] ?? "0";
