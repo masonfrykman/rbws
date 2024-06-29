@@ -221,8 +221,7 @@ class HTTPServerInstance {
     if (match != null) {
       return match;
     }
-    return RBWSResponse.dataFromString(
-        404, "The requested resource was unavailable.");
+    return routeNotFound(request);
   }
 
   /// Processes PUT requests handled by [processRequest]
@@ -231,8 +230,7 @@ class HTTPServerInstance {
     if (match != null) {
       return match;
     }
-    return RBWSResponse.dataFromString(
-        404, "The requested resource was unavailable.");
+    return routeNotFound(request);
   }
 
   /// Processes DELETE requests handled by [processRequest]
@@ -241,8 +239,7 @@ class HTTPServerInstance {
     if (match != null) {
       return match;
     }
-    return RBWSResponse.dataFromString(
-        404, "The requested resource was unavailable.");
+    return routeNotFound(request);
   }
 
   /// Attempts to find a static route in [staticRoutes] that matches the [request] method and path.
