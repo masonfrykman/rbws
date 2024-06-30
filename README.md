@@ -1,6 +1,6 @@
 # RBWS
 
-*really bad web ~~server~~service*
+*really bad web server*
 
 Another generic HTTP/1.1 web server implementation using ```dart:io```.
 
