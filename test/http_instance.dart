@@ -135,4 +135,18 @@ void main() {
         equals("test data".length.toString()));
     expect(response.data, equals(null));
   });
+
+  test('Server can do auto loading from path.', () async {
+    RBWSRequest request =
+        RBWSRequest.dataFromString(RBWSMethod.get, "/index.html", "1.1");
+    RBWSRequest request2 =
+        RBWSRequest.dataFromString(RBWSMethod.get, "/subpage/blah.html", "1.1");
+    var response = await instance.processRequest(request);
+    var response2 = await instance.processRequest(request2);
+
+    expect(response.status, equals(200));
+    expect(response2.status, equals(200));
+    expect(utf8.decode(response.data ?? []), startsWith("<!DOCTYPE html>"));
+    expect(utf8.decode(response2.data ?? []), startsWith("<!DOCTYPE html>"));
+  });
 }
