@@ -1,4 +1,4 @@
-## *Next Release*
+## 1.1.0
 
 - Made HTTPServerInstance more modular
     - Extracted Upgrade-Insecure-Requests handling into HTTPServerInstance.shouldUpgradeInsecureRequest
