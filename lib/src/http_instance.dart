@@ -250,32 +250,25 @@ class HTTPServerInstance {
         toRequest: request);
   }
 
-  /// Processes POST requests handled by [processRequest]
-  Future<RBWSResponse> processPOSTRequest(RBWSRequest request) async {
+  Future<RBWSResponse> _defaultStaticRouteMatch(RBWSRequest request) async {
     RBWSResponse? match = await tryToMatchStaticRoute(request);
     if (match != null) {
       return match;
     }
     return routeNotFound(request);
   }
+
+  /// Processes POST requests handled by [processRequest]
+  Future<RBWSResponse> processPOSTRequest(RBWSRequest request) async =>
+      await _defaultStaticRouteMatch(request);
 
   /// Processes PUT requests handled by [processRequest]
-  Future<RBWSResponse> processPUTRequest(RBWSRequest request) async {
-    RBWSResponse? match = await tryToMatchStaticRoute(request);
-    if (match != null) {
-      return match;
-    }
-    return routeNotFound(request);
-  }
+  Future<RBWSResponse> processPUTRequest(RBWSRequest request) async =>
+      await _defaultStaticRouteMatch(request);
 
   /// Processes DELETE requests handled by [processRequest]
-  Future<RBWSResponse> processDELETERequest(RBWSRequest request) async {
-    RBWSResponse? match = await tryToMatchStaticRoute(request);
-    if (match != null) {
-      return match;
-    }
-    return routeNotFound(request);
-  }
+  Future<RBWSResponse> processDELETERequest(RBWSRequest request) async =>
+      await _defaultStaticRouteMatch(request);
 
   /// Attempts to find a static route in [staticRoutes] that matches the [request] method and path.
   /// If successful, it will call the handler and return the response.
