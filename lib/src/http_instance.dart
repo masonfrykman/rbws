@@ -10,6 +10,17 @@ import 'http_helpers/http_response.dart';
 import 'autorelease_cache.dart';
 
 /// The main object that accepts connections, recieves requests, and generates / sends responses.
+///
+/// ### Request Call Pipeline
+///
+/// 1. [processRequest]
+/// 2. [onRequest] (if defined)
+/// 3. [shouldUpgradeInsecureRequest]
+/// 4. [matchRequestToMethodProcessFunction]
+/// 5. Goes to corresponding method function ex. [processGETRequest]
+/// 6. [tryToMatchStaticRoute]
+/// 7. If GET or HEAD and [generalServeRoot] is defined, will try to match the requested path to a file in [generalServeRoot] and load it through [AutoreleasingCache].
+/// 8. [routeNotFound]
 class HTTPServerInstance {
   // *************************
   // * General Configuration *
