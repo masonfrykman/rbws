@@ -152,6 +152,36 @@ class HTTPServerInstance {
       return shouldUpgrade;
     }
 
+    return matchRequestToMethodProcessFunction(request);
+  }
+
+  /// Determines whether a request should be upgraded via Upgrade-Insecure-Requests.
+  ///
+  /// If true, returns the upgrade response.
+  /// If false, returns null.
+  RBWSResponse? shouldUpgradeInsecureRequest(RBWSRequest request) {
+    if (securityContext == null &&
+        request.headers["Upgrade-Insecure-Requests"]?.trim() == "1" &&
+        referralToSecureServer != null) {
+      return RBWSResponse(303,
+          headers: {
+            "Vary": "Upgrade-Insecure-Requests",
+            "Location": "$referralToSecureServer${request.path}"
+          },
+          toRequest: request);
+    }
+    return null;
+  }
+
+  /// Calls the request processing function based on the request's method.
+  ///
+  /// Supports GET, HEAD, POST, PUT, DELETE. Other methods will cause a 405 Method Not Allowed response.
+  ///
+  /// For example, a request with a GET method will call [HTTPServerInstance.processGETRequest]
+  ///
+  /// A request with the HEAD method will call [HTTPServerInstance.processGETRequest] but will omit the body.
+  FutureOr<RBWSResponse> matchRequestToMethodProcessFunction(
+      RBWSRequest request) {
     switch (request.method) {
       case RBWSMethod.get:
         return processGETRequest(request);
@@ -176,24 +206,6 @@ class HTTPServerInstance {
       default:
         return RBWSResponse(405);
     }
-  }
-
-  /// Determines whether a request should be upgraded via Upgrade-Insecure-Requests.
-  ///
-  /// If true, returns the upgrade response.
-  /// If false, returns null.
-  RBWSResponse? shouldUpgradeInsecureRequest(RBWSRequest request) {
-    if (securityContext == null &&
-        request.headers["Upgrade-Insecure-Requests"]?.trim() == "1" &&
-        referralToSecureServer != null) {
-      return RBWSResponse(303,
-          headers: {
-            "Vary": "Upgrade-Insecure-Requests",
-            "Location": "$referralToSecureServer${request.path}"
-          },
-          toRequest: request);
-    }
-    return null;
   }
 
   /// Processes GET requests handled by [processRequest].
