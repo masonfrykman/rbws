@@ -147,15 +147,9 @@ class HTTPServerInstance {
     }
 
     // Upgrade-Insecure-Requests
-    if (securityContext == null &&
-        request.headers["Upgrade-Insecure-Requests"]?.trim() == "1" &&
-        referralToSecureServer != null) {
-      return RBWSResponse(303,
-          headers: {
-            "Vary": "Upgrade-Insecure-Requests",
-            "Location": "$referralToSecureServer${request.path}"
-          },
-          toRequest: request);
+    var shouldUpgrade = shouldUpgradeInsecureRequest(request);
+    if (shouldUpgrade != null) {
+      return shouldUpgrade;
     }
 
     switch (request.method) {
@@ -182,6 +176,24 @@ class HTTPServerInstance {
       default:
         return RBWSResponse(405);
     }
+  }
+
+  /// Determines whether a request should be upgraded via Upgrade-Insecure-Requests.
+  ///
+  /// If true, returns the upgrade response.
+  /// If false, returns null.
+  RBWSResponse? shouldUpgradeInsecureRequest(RBWSRequest request) {
+    if (securityContext == null &&
+        request.headers["Upgrade-Insecure-Requests"]?.trim() == "1" &&
+        referralToSecureServer != null) {
+      return RBWSResponse(303,
+          headers: {
+            "Vary": "Upgrade-Insecure-Requests",
+            "Location": "$referralToSecureServer${request.path}"
+          },
+          toRequest: request);
+    }
+    return null;
   }
 
   /// Processes GET requests handled by [processRequest].
