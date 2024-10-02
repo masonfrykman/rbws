@@ -153,6 +153,16 @@ class HTTPServerInstance {
     if (req == null) {
       return;
     }
+    if (requestIntercept != null) {
+      (RBWSRequest?, RBWSResponse?) possibleRequestOrResponse =
+          await requestIntercept!(req);
+
+      if (possibleRequestOrResponse.$1 != null) {
+        req = possibleRequestOrResponse.$1!;
+      } else if (possibleRequestOrResponse.$2 != null) {
+        await _sendResponse(sender, possibleRequestOrResponse.$2!);
+      }
+    }
 
     var response = await processRequest(req);
     if (responseIntercept != null) {
@@ -161,14 +171,18 @@ class HTTPServerInstance {
     if (onResponse != null) {
       onResponse!(response);
     }
-    sender.add(response.generate11WithData());
-    await sender.flush(); // Make sure we don't start sending other data.
-    sender.destroy();
+    await _sendResponse(sender, response);
     // I've been having issues where data isn't recieved by browsers until
     // the socket is destroyed. To be so for real, I have no idea if it's
     // supposed to be like that, but the existence of Connection: keep-alive
     // seems to point to the contrary. If someone has the answer, please let
     // me know!
+  }
+
+  Future<void> _sendResponse(Socket to, RBWSResponse data) async {
+    to.add(data.generate11WithData());
+    await to.flush(); // Make sure we don't start sending other data.
+    to.destroy();
   }
 
   /// Handles requests as they're recieved.
