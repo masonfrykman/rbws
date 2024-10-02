@@ -19,15 +19,13 @@ void main() {
 
   var zipBytes = File("test/resource/webroot.zip").readAsBytesSync();
   var zip = ZipDecoder().decodeBytes(zipBytes, verify: true);
-  Directory("${Directory.systemTemp.path}\\rbws-test-webroot").createSync();
-
+  Directory("${Directory.systemTemp.path}/rbws-test-webroot").createSync();
   for (var file in zip) {
     if (file.isFile) {
-      File("${Directory.systemTemp.path}/rbws-test-webroot/${file.name.replaceAll("/", "\\")}")
+      File("${Directory.systemTemp.path}/rbws-test-webroot/${file.name}")
           .writeAsBytesSync(file.content, flush: true);
     } else {
-      Directory(
-              "${Directory.systemTemp.path}/rbws-test-webroot/${file.name.replaceAll("/", "\\")}")
+      Directory("${Directory.systemTemp.path}/rbws-test-webroot/${file.name}")
           .createSync(recursive: true);
     }
   }
