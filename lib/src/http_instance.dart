@@ -57,6 +57,8 @@ class HTTPServerInstance {
   /// First call when a response is returned from [processRequest].
   void Function(RBWSResponse)? onResponse;
 
+  FutureOr<RBWSResponse> Function(RBWSRequest, RBWSResponse)? responseIntercept;
+
   /// Fallback handler for when every control flow path (static routes, loading files from filesystem, etc.) in [processRequest] fails.
   FutureOr<RBWSResponse> Function(RBWSRequest) routeNotFound = (r) {
     return RBWSResponse(404,
@@ -82,6 +84,7 @@ class HTTPServerInstance {
       this.securityContext,
       this.onRequest,
       this.onResponse,
+      this.responseIntercept,
       this.defaultStorageLength = const Duration(days: 1)}) {
     this.generalServeRoot =
         generalServeRoot; // Use the setter to fix Windows paths.
@@ -131,6 +134,9 @@ class HTTPServerInstance {
     }
 
     var response = await processRequest(req);
+    if (responseIntercept != null) {
+      response = await responseIntercept!(req, response);
+    }
     if (onResponse != null) {
       onResponse!(response);
     }
