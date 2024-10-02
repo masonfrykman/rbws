@@ -21,6 +21,7 @@ import 'autorelease_cache.dart';
 /// 6. [tryToMatchStaticRoute]
 /// 7. If GET or HEAD and [generalServeRoot] is defined, will try to match the requested path to a file in [generalServeRoot] and load it through [AutoreleasingCache].
 /// 8. [routeNotFound]
+/// 9. [responseIntercept] (if defined)
 class HTTPServerInstance {
   // *************************
   // * General Configuration *
@@ -57,6 +58,25 @@ class HTTPServerInstance {
   /// First call when a response is returned from [processRequest].
   void Function(RBWSResponse)? onResponse;
 
+  /// Intercepts an incoming request.
+  ///
+  /// The returned value is a record of a request and/or a response. Of which,
+  ///
+  /// if (defined, undefined), the response will be the result of passing $1 to [processRequest].
+  ///
+  /// If (undefined, defined), the response will be $1.
+  ///
+  /// If (defined, defined), the response will the same as (defined, undefined)
+  ///
+  /// If (undefined, undefined), the response will be the result of passing the original request to [processRequest].
+  ///
+  /// Note that if the response record value is defined, it will not pass through [responseIntercept].
+  FutureOr<(RBWSRequest?, RBWSResponse?)> Function(RBWSRequest)?
+      requestIntercept;
+
+  /// Intercepts an outgoing response, allowing for modification of what response is used to respond.
+  ///
+  /// The parameters of the function is the outgoing response and the request used to generate said response.
   FutureOr<RBWSResponse> Function(RBWSRequest, RBWSResponse)? responseIntercept;
 
   /// Fallback handler for when every control flow path (static routes, loading files from filesystem, etc.) in [processRequest] fails.
@@ -84,6 +104,7 @@ class HTTPServerInstance {
       this.securityContext,
       this.onRequest,
       this.onResponse,
+      this.requestIntercept,
       this.responseIntercept,
       this.defaultStorageLength = const Duration(days: 1)}) {
     this.generalServeRoot =
