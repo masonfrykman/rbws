@@ -149,7 +149,14 @@ class HTTPServerInstance {
   }
 
   void _conOnData(Uint8List data, Socket sender) async {
-    var req = RBWSRequest.from(data);
+    RBWSRequest? req;
+    try {
+      req = RBWSRequest.from(data);
+    } on FormatException {
+      await _sendResponse(
+          sender, RBWSResponse.dataFromString(400, "400 Bad Request"));
+      return;
+    }
     if (req == null) {
       return;
     }

@@ -50,6 +50,7 @@ class RBWSRequest {
   /// Parses a request from raw data.
   ///
   /// If it cannot discern a valid request, it returns null.
+  /// If data is malformed, a [FormatException] is rethrown from [utf8.decode]
   static RBWSRequest? from(Uint8List data) {
     // First line: Contains version, path, and method.
     int firstNewline = data.indexWhere((x) => x == _NEWLINE);
