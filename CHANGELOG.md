@@ -1,3 +1,7 @@
+## (TBD)
+- Fixed server crash when request is malformed UTF8
+    - Now responds with 400 Bad Request
+
 ## 1.1.0
 
 - Made HTTPServerInstance more modular
