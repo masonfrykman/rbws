@@ -1,6 +1,6 @@
-## (TBD)
-- Fixed server crash when request is malformed UTF8
-    - Now responds with 400 Bad Request
+## 1.1.1
+- Fixed where a malformed request causes server crash
+    - Server now responds with 400 Bad Request
 
 ## 1.1.0
 
