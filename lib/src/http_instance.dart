@@ -92,23 +92,30 @@ class HTTPServerInstance {
   /// If [securityContext] is not null, then it will use the [SecureServerSocket.bind] method. Otherwise, it will use [ServerSocket.bind].
   void start() async {
     if (securityContext != null) {
+      // Secure server
       _serverSocket = await SecureServerSocket.bind(host, port, securityContext,
-          supportedProtocols: ["http/1.1"]);
-
-      _serverSocket!.handleError((err) {
-        stderr.write("Secure server encountered an error!\n");
-        if (err is HandshakeException) {
-          stderr.write("\tThere was a problem with the TLS handshake.\n");
-          stderr.write("\t${err.message}\n");
-        } else if (err is Error) {
-          stderr.write("\tUnrecognized error:\n");
-          stderr.write("\t${err.stackTrace}\n");
-        }
-      }).listen((socket) => _socketOnListen(socket));
+          supportedProtocols: ["http/1.1"])
+        ..handleError((err) {
+          stderr.write("Secure server encountered an error!\n");
+          if (err is HandshakeException) {
+            stderr.writeln(
+                "\tThere was a problem with the TLS handshake. This can usually be ignored, or there might be a problem with your SecurityContext configuration.");
+            stderr.writeln("\t${err.message}");
+          } else if (err is Error) {
+            stderr.writeln("\tError type: '${err.runtimeType}'");
+            stderr.writeln("\tStack Trace: ${err.stackTrace}");
+          }
+        }).listen((socket) => _socketOnListen(socket), cancelOnError: false);
       return;
     }
-    _serverSocket = await ServerSocket.bind(host, port);
-    _serverSocket!.listen((socket) => _socketOnListen(socket));
+
+    // securityContext == null (Insecure server)
+    _serverSocket = await ServerSocket.bind(host, port)
+      ..handleError((err) {
+        stderr.writeln("Server encountered an error!");
+        stderr.writeln("\tError type: '${err.runtimeType}'");
+        stderr.writeln("\tStack trace: ${err.runtimeType}");
+      }).listen((socket) => _socketOnListen(socket), cancelOnError: false);
   }
 
   /// Stops accepting connections.
