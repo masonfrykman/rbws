@@ -1,4 +1,4 @@
-## (tbd)
+## 1.1.2
 
 - Made the HandshakeException description more useful.
 - Errors with a server no longer cause the whole program to exit.
