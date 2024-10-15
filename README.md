@@ -22,7 +22,7 @@ The RBWS package is licensed under the [GNU Lesser General Public License v3.0](
 
 **What this means for you:** you can use the pub utility to get the package, import it into another application, and release that code built on this library under whatever license your heart desires.
 
-However, if any of the source code of this library is changed, that subsequent source code must be released and be easily accessible under the LGPL or GPL. Thats it! :)
+However, if any of the source code of this library is changed or reused, that subsequent source code must be released and be easily accessible under the LGPL or GPL. Thats it! :)
 
 ## Examples
 
