@@ -6,6 +6,7 @@ class RBWSRequest {
   // (this is basically a constant. not officially.)
   // ignore: non_constant_identifier_names
   static final int _NEWLINE = utf8.encode("\n").first;
+  static final int _CARRIAGERETURN = utf8.encode("\r").first;
 
   /// The HTTP version. Most likely will be "1.1".
   String get version => _version;
@@ -109,8 +110,12 @@ class RBWSRequest {
   static Map<String, String> processHeaders(Iterable<String> list) {
     Map<String, String> s = {};
     for (String str in list) {
+      str = str.trim().replaceAll("\r", "");
+
       int colon = str.indexOf(":");
-      if (colon == -1 || s.containsKey(str.substring(0, colon))) {
+      if (colon == -1 ||
+          s.containsKey(str.substring(0, colon)) ||
+          colon + 1 == str.length) {
         continue;
       }
       s[str.substring(0, colon)] = str.substring(colon + 2);
