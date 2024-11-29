@@ -1,3 +1,9 @@
+## 1.1.3
+
+- Fixed header parse behavior
+    - No longer adds trailing carriage returns
+    - Ignores empty headers
+
 ## 1.1.2
 
 - Made the HandshakeException description more useful.
