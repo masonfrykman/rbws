@@ -26,7 +26,10 @@ class HTTPServerInstance {
   // * General Configuration *
   // *************************
 
+  /// The internet address the server will bind to. See [ServerSocket.bind] for more information on what this value can be.
   dynamic host;
+
+  /// The port the server will bind to.
   int port;
 
   /// The root directory for where [processGETRequest] will attempt to load a file from the filesystem and cache it, using [storage].
