@@ -24,6 +24,10 @@ The RBWS package is licensed under the [GNU Lesser General Public License v3.0](
 
 However, if any of the source code of this library is changed or reused, that subsequent source code must be released and be easily accessible under the LGPL or GPL. Thats it! :)
 
+## Synopsis
+
+This package provides a framework for programmatically building an HTTP server application by providing classes that handle the nitty-gritty of HTTP/1.1—TCP connections, request parsing, response synthesis—yet still allow for customization when necessary. Said classes often go even further than basic HTTP management by accomodating common tasks and use cases that may appear when building an application.
+
 ## Examples
 
 ### Basic usage
