@@ -1,4 +1,6 @@
+/// Thrown when attempting to perform an operation on a path in [AutoreleasingCache] that doesn't exist.
 class PathDoesNotExistException implements Exception {
+  /// The path that generated the exception
   String offendingPath;
 
   PathDoesNotExistException(this.offendingPath);
