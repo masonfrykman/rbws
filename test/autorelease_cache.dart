@@ -23,18 +23,6 @@ void main() async {
     expect(await cache!.grab("/reallycooldata"), equals(testData));
   });
 
-  test('Data automatically clears out', () async {
-    expect(
-        cache!.store("/reallycooldata", testData,
-            clearAfter: Duration(seconds: 1)),
-        equals(true));
-    var delayedCheck = await Future.delayed(Duration(seconds: 3), () {
-      return cache!.grab("/reallycooldata");
-    });
-    expect(delayedCheck, equals(null),
-        reason: "The data should be cleared out after 1 second. We waited 3.");
-  });
-
   test('Data can be purged', () async {
     cache!.store("/reallycooldata", testData, clearAfter: null);
     expect(cache!.purge("/reallycooldata"), equals(true));
@@ -82,17 +70,34 @@ void main() async {
     });
   });
 
-  test('Store can set new expiration timer. (takes at least 7 seconds)',
-      () async {
-    cache!.store("/expires", testData);
-    expect(cache!.contains("/expires"), equals(true));
+  group('[Time-based]', () {
+    test('Data automatically clears out (takes at least 3 seconds)', () async {
+      expect(
+          cache!.store("/reallycooldata", testData,
+              clearAfter: Duration(seconds: 1)),
+          equals(true));
+      var delayedCheck = await Future.delayed(Duration(seconds: 3), () {
+        return cache!.grab("/reallycooldata");
+      });
+      expect(delayedCheck, equals(null),
+          reason:
+              "The data should be cleared out after 1 second. We waited 3.");
+    });
 
-    cache!.setNewExpiration("/expires",
-        newClearAfterDuration: Duration(seconds: 5));
-    expect(cache!.contains("/expires"), equals(true)); // should still be there
+    test('Store can set new expiration timer. (takes at least 7 seconds)',
+        () async {
+      cache!.store("/expires", testData);
+      expect(cache!.contains("/expires"), equals(true));
 
-    await Future.delayed(Duration(seconds: 7), () {
-      expect(cache!.contains("/expires"), equals(false)); // shouldn't be there.
+      cache!.setNewExpiration("/expires",
+          newClearAfterDuration: Duration(seconds: 5));
+      expect(
+          cache!.contains("/expires"), equals(true)); // should still be there
+
+      await Future.delayed(Duration(seconds: 7), () {
+        expect(
+            cache!.contains("/expires"), equals(false)); // shouldn't be there.
+      });
     });
   });
 }
