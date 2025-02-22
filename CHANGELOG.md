@@ -1,3 +1,9 @@
+## (next minor)
+
+- Added functions to AutoreleasingCache
+    - contains
+    - clear
+
 ## 1.1.3
 
 - Fixed header parse behavior
