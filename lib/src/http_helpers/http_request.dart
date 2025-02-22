@@ -6,7 +6,6 @@ class RBWSRequest {
   // (this is basically a constant. not officially.)
   // ignore: non_constant_identifier_names
   static final int _NEWLINE = utf8.encode("\n").first;
-  static final int _CARRIAGERETURN = utf8.encode("\r").first;
 
   /// The HTTP version. Most likely will be "1.1".
   String get version => _version;
