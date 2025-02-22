@@ -81,4 +81,18 @@ void main() async {
       expect(val, equals(testData2));
     });
   });
+
+  test('Store can set new expiration timer. (takes at least 7 seconds)',
+      () async {
+    cache!.store("/expires", testData);
+    expect(cache!.contains("/expires"), equals(true));
+
+    cache!.setNewExpiration("/expires",
+        newClearAfterDuration: Duration(seconds: 5));
+    expect(cache!.contains("/expires"), equals(true)); // should still be there
+
+    await Future.delayed(Duration(seconds: 7), () {
+      expect(cache!.contains("/expires"), equals(false)); // shouldn't be there.
+    });
+  });
 }
