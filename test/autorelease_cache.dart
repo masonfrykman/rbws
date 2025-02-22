@@ -6,6 +6,7 @@ import 'package:rbws/rbws.dart';
 
 void main() async {
   var testData = utf8.encode("Hello, World!");
+  var testData2 = utf8.encode("Goodbye, World!");
   AutoreleasingCache? cache;
 
   setUp(() {
@@ -70,5 +71,14 @@ void main() async {
     for (int i = 0; i < 10; i++) {
       expect(await cache!.grab("/$i", cacheIfNotAlready: false), equals(null));
     }
+  });
+
+  test('Store can replace data', () {
+    cache!.store("/replaced", testData);
+    expect(cache!.replace("/replaced", testData2), equals(testData));
+
+    cache!.grab("/replaced").then((val) {
+      expect(val, equals(testData2));
+    });
   });
 }

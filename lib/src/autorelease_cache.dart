@@ -147,9 +147,9 @@ class AutoreleasingCache {
       throw PathDoesNotExistException(path);
     }
 
-    var data = _store[path]!.$1;
+    var olddata = _store[path]!.$1;
     purge(path);
     store(path, data, clearAfter: newClearAfterDuration);
-    return data;
+    return olddata;
   }
 }
