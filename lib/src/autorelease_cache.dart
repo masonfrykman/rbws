@@ -97,6 +97,21 @@ class AutoreleasingCache {
     return true;
   }
 
+  /// Clears the store of all data.
+  ///
+  /// Cancels all timers before clearing.
+  void clear() {
+    // Iterate through and clear times
+    for (var pair in _store.entries) {
+      if (pair.value.$2 != null) {
+        pair.value.$2!.cancel();
+      }
+    }
+
+    // Now actually clear the store.
+    _store.clear();
+  }
+
   /// Whether the store has data at a corresponding path.
   bool contains(String path) => _store.containsKey(path);
 }

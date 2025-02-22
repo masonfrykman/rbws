@@ -61,4 +61,14 @@ void main() async {
     cache!.store("/contains-test", testData);
     expect(cache!.contains("/contains-test"), equals(true));
   });
+
+  test('Store can be cleared', () async {
+    for (int i = 0; i < 10; i++) {
+      cache!.store("/$i", testData);
+    }
+    cache!.clear();
+    for (int i = 0; i < 10; i++) {
+      expect(await cache!.grab("/$i", cacheIfNotAlready: false), equals(null));
+    }
+  });
 }
