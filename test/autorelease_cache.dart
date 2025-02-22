@@ -56,4 +56,9 @@ void main() async {
         equals(testData.length));
     expect(await cache!.grab("random"), equals(testData));
   });
+
+  test('contains', () {
+    cache!.store("/contains-test", testData);
+    expect(cache!.contains("/contains-test"), equals(true));
+  });
 }

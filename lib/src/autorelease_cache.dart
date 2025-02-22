@@ -96,4 +96,7 @@ class AutoreleasingCache {
 
     return true;
   }
+
+  /// Whether the store has data at a corresponding path.
+  bool contains(String path) => _store.containsKey(path);
 }
