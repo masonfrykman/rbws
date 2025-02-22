@@ -138,6 +138,9 @@ enum RBWSMethod {
     return super.toString().split(".").last.toUpperCase();
   }
 
+  /// Deduces the HTTP method represented in the argument.
+  ///
+  /// If it cannot deduce the method, it will return [RBWSMethod.unrecognized].
   static RBWSMethod fromString(String container) {
     container = container.trim().toLowerCase();
 
