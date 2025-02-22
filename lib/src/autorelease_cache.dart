@@ -2,6 +2,8 @@ import 'dart:typed_data';
 import 'dart:async';
 import 'dart:io';
 
+import 'exceptions/path_dne.dart';
+
 /// Stores paths that correspond to data. Also, optionally, stores the data with a timer that will fire and clear said data.
 ///
 /// This is the default way that [HTTPServerInstance] loads and stores files (you can find the object it uses at [HTTPServerInstance.storage]).
@@ -114,4 +116,21 @@ class AutoreleasingCache {
 
   /// Whether the store has data at a corresponding path.
   bool contains(String path) => _store.containsKey(path);
+
+  /// Restarts the internal expiration timer for a given path with a new duration.
+  ///
+  /// The old timer is canceled.
+  ///
+  /// If the new duration is null, the data will be held indefinitely.
+  ///
+  /// If [forPath] is not a path defined in the store, [PathDoesNotExistException] is thrown.
+  void setNewExpiration(String forPath, Duration? newDuration) {
+    if (!_store.containsKey(forPath)) {
+      throw PathDoesNotExistException(forPath);
+    }
+
+    var data = _store[forPath]!.$1;
+    purge(forPath);
+    store(forPath, data, clearAfter: newDuration);
+  }
 }
