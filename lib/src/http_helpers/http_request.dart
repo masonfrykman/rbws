@@ -131,6 +131,8 @@ enum RBWSMethod {
   put,
   delete,
   head,
+  @Deprecated(
+      "Will be removed in 2.0.0, consider substituting this with an optional RBWSMethod type.")
   unrecognized;
 
   @override
