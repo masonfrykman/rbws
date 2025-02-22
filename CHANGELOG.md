@@ -1,3 +1,7 @@
+## (next minor)
+
+- Deprecated RBWSMethod.unrecognized, will be removed in next major release.
+
 ## 1.1.3
 
 - Fixed header parse behavior
