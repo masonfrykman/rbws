@@ -124,13 +124,32 @@ class AutoreleasingCache {
   /// If the new duration is null, the data will be held indefinitely.
   ///
   /// If [forPath] is not a path defined in the store, [PathDoesNotExistException] is thrown.
-  void setNewExpiration(String forPath, Duration? newDuration) {
+  void setNewExpiration(String forPath, {Duration? newClearAfterDuration}) {
     if (!_store.containsKey(forPath)) {
       throw PathDoesNotExistException(forPath);
     }
 
     var data = _store[forPath]!.$1;
     purge(forPath);
-    store(forPath, data, clearAfter: newDuration);
+    store(forPath, data, clearAfter: newClearAfterDuration);
+  }
+
+  /// Replaces the data at [path] with [data].
+  ///
+  /// Returns the old data.
+  ///
+  /// If [newClearAfterDuration] is null, the data will never expire.
+  ///
+  /// If [path] does not exist, [PathDoesNotExistException] will be thrown.
+  Uint8List replace(String path, Uint8List data,
+      {Duration? newClearAfterDuration}) {
+    if (!_store.containsKey(path)) {
+      throw PathDoesNotExistException(path);
+    }
+
+    var data = _store[path]!.$1;
+    purge(path);
+    store(path, data, clearAfter: newClearAfterDuration);
+    return data;
   }
 }

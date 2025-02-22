@@ -4,6 +4,7 @@
     - contains
     - clear
     - setNewExpiration
+    - replace
 - Added exception type for when a path in AutoreleasingCache does not exist yet was attempted to be read. (not breaking anything yet!)
 
 ## 1.1.3
