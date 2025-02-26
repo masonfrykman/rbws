@@ -1,6 +1,12 @@
 ## (next minor)
 
 - Deprecated RBWSMethod.unrecognized, will be removed in next major release.
+- Added functions to AutoreleasingCache
+    - contains
+    - clear
+    - setNewExpiration
+    - replace
+- Added exception type for when a path in AutoreleasingCache does not exist yet was attempted to be read. (not breaking anything yet!)
 
 ## 1.1.3
 

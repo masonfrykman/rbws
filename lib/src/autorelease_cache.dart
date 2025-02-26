@@ -2,6 +2,8 @@ import 'dart:typed_data';
 import 'dart:async';
 import 'dart:io';
 
+import 'exceptions/path_dne.dart';
+
 /// Stores paths that correspond to data. Also, optionally, stores the data with a timer that will fire and clear said data.
 ///
 /// This is the default way that [HTTPServerInstance] loads and stores files (you can find the object it uses at [HTTPServerInstance.storage]).
@@ -95,5 +97,59 @@ class AutoreleasingCache {
     }
 
     return true;
+  }
+
+  /// Clears the store of all data.
+  ///
+  /// Cancels all timers before clearing.
+  void clear() {
+    // Iterate through and clear times
+    for (var pair in _store.entries) {
+      if (pair.value.$2 != null) {
+        pair.value.$2!.cancel();
+      }
+    }
+
+    // Now actually clear the store.
+    _store.clear();
+  }
+
+  /// Whether the store has data at a corresponding path.
+  bool contains(String path) => _store.containsKey(path);
+
+  /// Restarts the internal expiration timer for a given path with a new duration.
+  ///
+  /// The old timer is canceled.
+  ///
+  /// If the new duration is null, the data will be held indefinitely.
+  ///
+  /// If [forPath] is not a path defined in the store, [PathDoesNotExistException] is thrown.
+  void setNewExpiration(String forPath, {Duration? newClearAfterDuration}) {
+    if (!_store.containsKey(forPath)) {
+      throw PathDoesNotExistException(forPath);
+    }
+
+    var data = _store[forPath]!.$1;
+    purge(forPath);
+    store(forPath, data, clearAfter: newClearAfterDuration);
+  }
+
+  /// Replaces the data at [path] with [data].
+  ///
+  /// Returns the old data.
+  ///
+  /// If [newClearAfterDuration] is null, the data will never expire.
+  ///
+  /// If [path] does not exist, [PathDoesNotExistException] will be thrown.
+  Uint8List replace(String path, Uint8List data,
+      {Duration? newClearAfterDuration}) {
+    if (!_store.containsKey(path)) {
+      throw PathDoesNotExistException(path);
+    }
+
+    var olddata = _store[path]!.$1;
+    purge(path);
+    store(path, data, clearAfter: newClearAfterDuration);
+    return olddata;
   }
 }
