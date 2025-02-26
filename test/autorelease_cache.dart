@@ -70,6 +70,18 @@ void main() async {
     });
   });
 
+  group('[Exception]', () {
+    test('replace() throws PathDoesNotExistException', () {
+      expect(() => cache!.replace("/dne", testData),
+          throwsA(isA<PathDoesNotExistException>()));
+    });
+
+    test('setNewExpiration() throws PathDoesNotExistException', () {
+      expect(() => cache!.setNewExpiration("/still-dne"),
+          throwsA(isA<PathDoesNotExistException>()));
+    });
+  });
+
   group('[Time-based]', () {
     test('Data automatically clears out (takes at least 3 seconds)', () async {
       expect(
