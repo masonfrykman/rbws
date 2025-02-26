@@ -1,4 +1,4 @@
-## (next minor)
+## 1.1.4
 
 - Deprecated RBWSMethod.unrecognized, will be removed in next major release.
 - Added functions to AutoreleasingCache
