@@ -60,10 +60,13 @@ class RBWSRequest {
 
     List<String> tokenizedFL = firstLine.split(" ");
 
-    RBWSMethod method = RBWSMethod.fromString(tokenizedFL.first);
-    if (method == RBWSMethod.unrecognized) {
-      return RBWSRequest(RBWSMethod.unrecognized, "", "1.1");
+    RBWSMethod method;
+    try {
+      method = RBWSMethod.fromString(tokenizedFL.first);
+    } on FormatException {
+      return null;
     }
+
     String path = tokenizedFL[1];
     String version = tokenizedFL[2].split("/").last;
 
@@ -130,10 +133,7 @@ enum RBWSMethod {
   post,
   put,
   delete,
-  head,
-  @Deprecated(
-      "Will be removed in 2.0.0, consider substituting this with an optional RBWSMethod type.")
-  unrecognized;
+  head;
 
   @override
   String toString() {
@@ -159,6 +159,7 @@ enum RBWSMethod {
         return head;
     }
 
-    return unrecognized;
+    throw FormatException(
+        "Could not parse valid HTTP method from string.", container);
   }
 }
