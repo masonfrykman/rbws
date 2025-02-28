@@ -2,7 +2,7 @@
 
 - Added HTTPStatusCode, a class that contains a bunch of static integer variables to neatly represent HTTP status codes inline.
 
-## 1.1.4
+## 1.2.0
 
 - Deprecated RBWSMethod.unrecognized, will be removed in next major release.
 - Added functions to AutoreleasingCache
