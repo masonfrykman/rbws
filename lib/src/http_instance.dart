@@ -6,7 +6,7 @@ import 'package:mime/mime.dart';
 
 import 'http_helpers/http_request.dart';
 import 'http_helpers/http_response.dart';
-
+import 'http_helpers/http_method.dart';
 import 'autorelease_cache.dart';
 
 /// The main object that accepts connections, recieves requests, and generates / sends responses.
@@ -233,8 +233,6 @@ class HTTPServerInstance {
           return response;
         });
         return response;
-      default:
-        return RBWSResponse(405);
     }
   }
 
