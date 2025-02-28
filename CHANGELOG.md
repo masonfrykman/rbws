@@ -1,6 +1,6 @@
-# (next major)
+# (next minor)
 
-- Removed RBWSMethod.unrecognized
+- Added HTTPStatusCode, a class that contains a bunch of static integer variables to neatly represent HTTP status codes inline.
 
 ## 1.1.4
 
