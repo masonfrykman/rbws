@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:mime/mime.dart';
 
+import 'exceptions/server_running.dart';
 import 'http_helpers/http_request.dart';
 import 'http_helpers/http_response.dart';
 import 'http_helpers/http_method.dart';
@@ -26,11 +27,31 @@ class HTTPServerInstance {
   // * General Configuration *
   // *************************
 
+  dynamic _host;
+
   /// The internet address the server will bind to. See [ServerSocket.bind] for more information on what this value can be.
-  dynamic host;
+  dynamic get host => _host;
+
+  /// Sets the host the server will bind to. Throws [ServerRunningException] if the server is running.
+  set host(dynamic value) {
+    if (_serverSocket != null) {
+      throw ServerRunningException("HTTPServerInstance.host");
+    }
+    _host = value;
+  }
+
+  int _port;
 
   /// The port the server will bind to.
-  int port;
+  int get port => _port;
+
+  /// Sets the port the server will bind to. Throws [ServerRunningException] if the server is running.
+  set port(int value) {
+    if (_serverSocket != null) {
+      throw ServerRunningException("HTTPServerInstance.port");
+    }
+    _port = value;
+  }
 
   /// The root directory for where [processGETRequest] will attempt to load a file from the filesystem and cache it, using [storage].
   String? get generalServeRoot => _generalServeRoot;
@@ -79,7 +100,7 @@ class HTTPServerInstance {
   AutoreleasingCache storage = AutoreleasingCache();
   dynamic _serverSocket;
 
-  HTTPServerInstance(this.host, this.port,
+  HTTPServerInstance(this._host, this._port,
       {String? generalServeRoot,
       this.staticRoutes,
       this.securityContext,

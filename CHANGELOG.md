@@ -1,3 +1,8 @@
+# (next major)
+
+- **Breaking**: HTTPServerInstance.host and HTTPServerInstance.port now throw ServerRunningException in their setters if the server is running.
+- Added ServerRunningException
+
 # (next minor)
 
 - Added HTTPStatusCode, a class that contains a bunch of static integer variables to neatly represent HTTP status codes inline.
