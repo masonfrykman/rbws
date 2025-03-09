@@ -1,5 +1,5 @@
 /// Indicates that a function was illegally called while the server was already running.
-class ServerRunningException {
+class ServerRunningException implements Exception {
   /// The name of the function that spawned the exception.
   String offender;
 
