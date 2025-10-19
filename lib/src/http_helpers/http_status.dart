@@ -1,4 +1,4 @@
-/// Defines ease-of-use shortcuts for the different HTTP status codes as defined in [RTF 9118](https://www.rfc-editor.org/rfc/rfc9110.html)
+/// Defines ease-of-use shortcuts for the different HTTP status codes as defined in [RTF 9110](https://www.rfc-editor.org/rfc/rfc9110.html)
 class HTTPStatusCode {
   // 1XX is not included bc the package user doesn't oversee these things.
   // 2XX - Successful

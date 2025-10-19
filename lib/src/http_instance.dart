@@ -120,11 +120,13 @@ class HTTPServerInstance {
       _serverSocket = await SecureServerSocket.bind(host, port, securityContext,
           supportedProtocols: ["http/1.1"])
         ..handleError((err) {
-          stderr.write("Secure server encountered an error!\n");
+          stderr.write(
+              "Secure server encountered (and, lucky you, is handling) an error!\n");
           if (err is HandshakeException) {
             stderr.writeln(
                 "\tThere was a problem with the TLS handshake. This can usually be ignored, or there might be a problem with your SecurityContext configuration.");
-            stderr.writeln("\t${err.message}");
+            stderr
+                .writeln("\tHandshakeException error message: ${err.message}");
           } else if (err is Error) {
             stderr.writeln("\tError type: '${err.runtimeType}'");
             stderr.writeln("\tStack Trace: ${err.stackTrace}");
@@ -152,7 +154,15 @@ class HTTPServerInstance {
 
   void _socketOnListen(Socket connection) {
     connection.setOption(SocketOption.tcpNoDelay, true);
-    connection.listen((data) => _conOnData(data, connection));
+    connection.listen((data) => _conOnData(data, connection),
+        onError: (err, stack) {
+      stderr.writeln(
+          "HTTPServerInstance encountered an error while listening for connections!");
+      stderr.writeln(
+          "\tThis is being \"handled\" to prevent crashing, here's the error information so you can investigate:");
+      stderr.writeln("\terr: $err");
+      stderr.writeln("\tstack trace: $stack");
+    });
   }
 
   void _conOnData(Uint8List data, Socket sender) async {
