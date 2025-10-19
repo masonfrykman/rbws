@@ -1,6 +1,7 @@
 # 2.0.0
 
 - **Breaking**: HTTPServerInstance.host and HTTPServerInstance.port now throw ServerRunningException in their setters if the server is running.
+- **Breaking**: Removed RBWSMethod.unrecognized, consider using RBWSMethod? and null instead.
 - Added ServerRunningException
 - Added HTTPStatusCode, a class that contains a bunch of static integer variables to neatly represent HTTP status codes inline.
 - Added exception handling to the connection listener in HTTPServerInstance._socketOnListen
