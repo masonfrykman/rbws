@@ -2,52 +2,52 @@
 class HTTPStatusCode {
   // 1XX is not included bc the package user doesn't oversee these things.
   // 2XX - Successful
-  static int ok = 200;
-  static int created = 201;
-  static int accepted = 202;
-  static int nonAuthoritativeInformation = 203;
-  static int noContent = 204;
-  static int resetContent = 205;
-  static int partialContent = 206;
+  static const int ok = 200;
+  static const int created = 201;
+  static const int accepted = 202;
+  static const int nonAuthoritativeInformation = 203;
+  static const int noContent = 204;
+  static const int resetContent = 205;
+  static const int partialContent = 206;
 
   // 3XX - Redirection
-  static int multipleChoices = 300;
-  static int movedPermanently = 301;
-  static int found = 302;
-  static int seeOther = 303;
-  static int notModified = 304;
-  static int useProxy = 305;
-  static int temporaryRedirect = 307;
-  static int permanentRedirect = 308;
+  static const int multipleChoices = 300;
+  static const int movedPermanently = 301;
+  static const int found = 302;
+  static const int seeOther = 303;
+  static const int notModified = 304;
+  static const int useProxy = 305;
+  static const int temporaryRedirect = 307;
+  static const int permanentRedirect = 308;
 
   // 4XX - Client Error
-  static int badRequest = 400;
-  static int unauthorized = 401;
-  static int paymentRequired = 402;
-  static int forbidden = 403;
-  static int notFound = 404;
-  static int methodNotAllowed = 405;
-  static int notAcceptable = 406;
-  static int proxyAuthenticationRequired = 407;
-  static int requestTimeout = 408;
-  static int conflict = 409;
-  static int gone = 410;
-  static int lengthRequired = 411;
-  static int preconditionFailed = 412;
-  static int contentTooLarge = 413;
-  static int uriTooLong = 414;
-  static int unsupportedMediaType = 415;
-  static int rangeNotSatisfiable = 416;
-  static int expectationFailed = 417;
-  static int isTeapot = 418;
-  static int misdirectedRequest = 421;
-  static int unprocessableContent = 422;
-  static int upgradeRequired = 426;
+  static const int badRequest = 400;
+  static const int unauthorized = 401;
+  static const int paymentRequired = 402;
+  static const int forbidden = 403;
+  static const int notFound = 404;
+  static const int methodNotAllowed = 405;
+  static const int notAcceptable = 406;
+  static const int proxyAuthenticationRequired = 407;
+  static const int requestTimeout = 408;
+  static const int conflict = 409;
+  static const int gone = 410;
+  static const int lengthRequired = 411;
+  static const int preconditionFailed = 412;
+  static const int contentTooLarge = 413;
+  static const int uriTooLong = 414;
+  static const int unsupportedMediaType = 415;
+  static const int rangeNotSatisfiable = 416;
+  static const int expectationFailed = 417;
+  static const int isTeapot = 418;
+  static const int misdirectedRequest = 421;
+  static const int unprocessableContent = 422;
+  static const int upgradeRequired = 426;
 
   // 5XX - Server Error
-  static int internalServerError = 500;
-  static int notImplemented = 501;
-  static int badGateway = 502;
-  static int serviceUnavailable = 503;
-  static int gatewayTimeout = 504;
+  static const int internalServerError = 500;
+  static const int notImplemented = 501;
+  static const int badGateway = 502;
+  static const int serviceUnavailable = 503;
+  static const int gatewayTimeout = 504;
 }
