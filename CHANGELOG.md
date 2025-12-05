@@ -1,3 +1,6 @@
+# 2.0.1
+- Export HTTPStatusCode and ServerRunningException (should've been exposed in 2.0.0)
+
 # 2.0.0
 
 - **Breaking**: HTTPServerInstance.host and HTTPServerInstance.port now throw ServerRunningException in their setters if the server is running.
