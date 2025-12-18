@@ -15,6 +15,8 @@ class AutoreleasingCache with FilesystemStorable {
 
   /// Stores data with a path. Optionally, creates a timer that clears the data after [clearAfter]; otherwise it will stay loaded until removed using [purge] or the program exits.
   ///
+  /// Will not replace data already associated with [path].
+  ///
   /// Returns whether the data was stored.
   bool store(String path, Uint8List data, {Duration? clearAfter}) {
     if (_store.containsKey(path)) {
@@ -69,9 +71,7 @@ class AutoreleasingCache with FilesystemStorable {
     return data;
   }
 
-  /// Removes data from the store via it's corresponding path.
-  ///
-  /// If the timer set during [store] is running, it will be canceled.
+  /// Removes data associated with [path] from the store, cancelling the timer associated with it if existing.
   @override
   bool purge(String path) {
     (Uint8List, Timer?)? removal = _store.remove(path);
@@ -112,7 +112,7 @@ class AutoreleasingCache with FilesystemStorable {
   ///
   /// If the new duration is null, the data will be held indefinitely.
   ///
-  /// If [forPath] is not a path defined in the store, [PathDoesNotExistException] is thrown.
+  /// Throws [PathDoesNotExistException] if [forPath] does not have data associated with it.
   void setNewExpiration(String forPath, {Duration? newClearAfterDuration}) {
     if (!_store.containsKey(forPath)) {
       throw PathDoesNotExistException(forPath);
