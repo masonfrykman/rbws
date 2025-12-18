@@ -10,10 +10,13 @@ import 'filesystem_interface.dart';
 /// This is the default way that [HTTPServerInstance] loads and stores files (you can find the object it uses at [HTTPServerInstance.storage]).
 class AutoreleasingCache with FilesystemStorable {
   final Map<String, (Uint8List, Timer?)> _store = {};
+  Duration? defaultStorageDuration;
 
-  AutoreleasingCache();
+  AutoreleasingCache({this.defaultStorageDuration});
 
-  /// Stores data with a path. Optionally, creates a timer that clears the data after [clearAfter]; otherwise it will stay loaded until removed using [purge] or the program exits.
+  /// Stores data with a path. Optionally, creates a timer that clears the data after [clearAfter].
+  /// If [clearAfter] is null, the timer will be set to fire after [defaultStorageDuration].
+  /// If [defaultStorageDuration] is null, no timer will be created and data will be stored until program termination or [purge] is called with [path].
   ///
   /// Will not replace data already associated with [path].
   ///
@@ -22,6 +25,8 @@ class AutoreleasingCache with FilesystemStorable {
     if (_store.containsKey(path)) {
       return false;
     }
+
+    clearAfter ??= defaultStorageDuration;
 
     _store[path] = (
       data,
@@ -44,8 +49,7 @@ class AutoreleasingCache with FilesystemStorable {
   ///
   /// Returns [Uint8List] containing the data or null if it cannot load the data.
   ///
-  /// If the data is loaded from the filesystem and [ifNotCachedClearAfter] is null,
-  ///   the data will be held for the lifetime of the application or until removed using [purge]
+  /// See documentation on [store] for how long the data is stored based on [ifNotCachedClearAfter] and [defaultStorageDuration]
   ///
   /// (Note: in API <= 2.0.1, this method was named 'grab')
   @override

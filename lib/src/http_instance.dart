@@ -9,6 +9,7 @@ import 'http_helpers/http_request.dart';
 import 'http_helpers/http_response.dart';
 import 'http_helpers/http_method.dart';
 import 'fs/autorelease_cache.dart';
+import 'fs/filesystem_interface.dart';
 
 /// The main object that accepts connections, recieves requests, and generates / sends responses.
 ///
@@ -56,6 +57,8 @@ class HTTPServerInstance {
   /// The root directory for where [processGETRequest] will attempt to load a file from the filesystem and cache it, using [storage].
   String? get generalServeRoot => _generalServeRoot;
   String? _generalServeRoot;
+
+  /// Sets the general serve root. (see the getter for more information)
   set generalServeRoot(val) {
     if (val == null) {
       return;
@@ -89,15 +92,12 @@ class HTTPServerInstance {
         toRequest: r);
   };
 
-  /// The amount of time to store a file matched from a document root in [AutoreleasingCache]. See [AutoreleasingCache] for more info on that mechanism.
-  Duration? defaultStorageLength;
-
   // ****************
   // * Internal Use *
   // ****************
 
-  /// Cache used by the server for files loaded from filesystem.
-  AutoreleasingCache storage = AutoreleasingCache();
+  /// Interface used by the server for loading data from the filesystem.
+  FilesystemStorable storage = AutoreleasingCache();
   dynamic _serverSocket;
 
   HTTPServerInstance(this._host, this._port,
@@ -105,8 +105,7 @@ class HTTPServerInstance {
       this.staticRoutes,
       this.securityContext,
       this.onRequest,
-      this.onResponse,
-      this.defaultStorageLength = const Duration(days: 1)}) {
+      this.onResponse}) {
     this.generalServeRoot =
         generalServeRoot; // Use the setter to fix Windows paths.
   }
@@ -283,9 +282,8 @@ class HTTPServerInstance {
       return routeNotFound(request);
     }
 
-    Uint8List? loadAttempt = await storage.grab(
-        "$generalServeRoot${request.path}",
-        ifNotCachedClearAfter: defaultStorageLength);
+    Uint8List? loadAttempt =
+        await storage.load("$generalServeRoot${request.path}");
     if (loadAttempt == null) {
       return routeNotFound(request);
     }
