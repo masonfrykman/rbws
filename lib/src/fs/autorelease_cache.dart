@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'dart:async';
 import 'dart:io';
 
-import 'exceptions/path_dne.dart';
+import '../exceptions/path_dne.dart';
 
 /// Stores paths that correspond to data. Also, optionally, stores the data with a timer that will fire and clear said data.
 ///
