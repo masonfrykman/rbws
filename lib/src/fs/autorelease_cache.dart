@@ -3,11 +3,12 @@ import 'dart:async';
 import 'dart:io';
 
 import '../exceptions/path_dne.dart';
+import 'filesystem_interface.dart';
 
 /// Stores paths that correspond to data. Also, optionally, stores the data with a timer that will fire and clear said data.
 ///
 /// This is the default way that [HTTPServerInstance] loads and stores files (you can find the object it uses at [HTTPServerInstance.storage]).
-class AutoreleasingCache {
+class AutoreleasingCache with FilesystemStorable {
   final Map<String, (Uint8List, Timer?)> _store = {};
 
   AutoreleasingCache();
@@ -67,7 +68,10 @@ class AutoreleasingCache {
   /// Otherwise, if [cacheIfNotAlready] is false or [storeFromDisk] fails, it will return null if not already stored.
   ///
   /// If the data is already stored or [storeFromDisk] succeeds, it will return the data as a [Uint8List].
-  Future<Uint8List?> grab(String path,
+  ///
+  /// (Note: in API <= 2.0.1, this method was named 'grab')
+  @override
+  Future<Uint8List?> load(String path,
       {bool cacheIfNotAlready = true, Duration? ifNotCachedClearAfter}) async {
     if (!_store.containsKey(path)) {
       if (!cacheIfNotAlready) {
@@ -88,6 +92,7 @@ class AutoreleasingCache {
   /// Removes data from the store via it's corresponding path.
   ///
   /// If the timer set during [store] is running, it will be canceled.
+  @override
   bool purge(String path) {
     (Uint8List, Timer?)? removal = _store.remove(path);
     if (removal == null) return false;
@@ -102,7 +107,10 @@ class AutoreleasingCache {
   /// Clears the store of all data.
   ///
   /// Cancels all timers before clearing.
-  void clear() {
+  ///
+  /// (Note: in API <= 2.0.1, this method was named 'clear')
+  @override
+  void purgeAll() {
     // Iterate through and clear times
     for (var pair in _store.entries) {
       if (pair.value.$2 != null) {
@@ -115,6 +123,7 @@ class AutoreleasingCache {
   }
 
   /// Whether the store has data at a corresponding path.
+  @override
   bool contains(String path) => _store.containsKey(path);
 
   /// Restarts the internal expiration timer for a given path with a new duration.
