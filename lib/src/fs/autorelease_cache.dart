@@ -14,6 +14,8 @@ class AutoreleasingCache with FilesystemStorable {
   AutoreleasingCache();
 
   /// Stores data with a path. Optionally, creates a timer that clears the data after [clearAfter]; otherwise it will stay loaded until removed using [purge] or the program exits.
+  ///
+  /// Returns whether the data was stored.
   bool store(String path, Uint8List data, {Duration? clearAfter}) {
     if (_store.containsKey(path)) {
       return false;
@@ -31,62 +33,40 @@ class AutoreleasingCache with FilesystemStorable {
     return true;
   }
 
-  /// Loads data from the disk using [path] as a literal filesystem path and as the symbolic path in the key store. See [store] for how [clearAfter] works.
-  Future<int> storeFromDisk(String path, {Duration? clearAfter}) async {
-    if (_store.containsKey(path)) {
-      return -1;
-    }
-    if (!await File(path).exists() || !await FileSystemEntity.isFile(path)) {
-      return 0;
-    }
-
-    Uint8List data = await File(path).readAsBytes();
-    return store(File(path).absolute.path, data, clearAfter: clearAfter)
-        ? data.length
-        : 0;
-  }
-
-  /// Loads data same as [storeFromDisk] but substitutes the internal path with a false path.
+  /// Gets data associated with a path.
   ///
-  /// Basically, [path] is the filesystem path to the data and [falsePath] is the path used to store the data in the key store.
-  Future<int> storeFromDiskWithFalsePath(String path, String falsePath,
-      {Duration? clearAfter}) async {
-    if (_store.containsKey(path)) {
-      return -1;
-    }
-    if (!await File(path).exists() || !await FileSystemEntity.isFile(path)) {
-      return 0;
-    }
-
-    Uint8List data = await File(path).readAsBytes();
-    return store(falsePath, data, clearAfter: clearAfter) ? data.length : 0;
-  }
-
-  /// Gets cached data.
+  /// If the data is already stored, the already-loaded data is returned.
+  /// If not, the data will be stored from the filesystem,
+  ///   automatically clearing after the duration set in [ifNotCachedClearAfter].
+  /// If the data cannot be loaded from the filesystem, returns null.
   ///
-  /// If the data is not already cached and [cacheIfNotAlready] is true (default), it will attempt to load the data from disk using [storeFromDisk] and pass in [ifNotCachedClearAfter]. See [store] for further description of the timer's behavior.
-  /// Otherwise, if [cacheIfNotAlready] is false or [storeFromDisk] fails, it will return null if not already stored.
+  /// Returns [Uint8List] containing the data or null if it cannot load the data.
   ///
-  /// If the data is already stored or [storeFromDisk] succeeds, it will return the data as a [Uint8List].
+  /// If the data is loaded from the filesystem and [ifNotCachedClearAfter] is null,
+  ///   the data will be held for the lifetime of the application or until removed using [purge]
   ///
   /// (Note: in API <= 2.0.1, this method was named 'grab')
   @override
   Future<Uint8List?> load(String path,
-      {bool cacheIfNotAlready = true, Duration? ifNotCachedClearAfter}) async {
-    if (!_store.containsKey(path)) {
-      if (!cacheIfNotAlready) {
-        return null;
-      }
-      var storeAction =
-          await storeFromDisk(path, clearAfter: ifNotCachedClearAfter);
-      if (storeAction == 0) {
-        return null;
-      }
-    }
-    if (_store[path] != null) {
+      {Duration? ifNotCachedClearAfter}) async {
+    // If the cache already contains the data, return it.
+    if (_store.containsKey(path)) {
       return _store[path]!.$1;
     }
-    return null;
+
+    // If not, then load the data and store it.
+    final fileHandle = File(path);
+    if (!await fileHandle.exists()) {
+      return null;
+    }
+
+    final data = await fileHandle.readAsBytes();
+    final storeOperation = store(path, data, clearAfter: ifNotCachedClearAfter);
+    if (!storeOperation) {
+      return null;
+    }
+
+    return data;
   }
 
   /// Removes data from the store via it's corresponding path.
@@ -141,24 +121,5 @@ class AutoreleasingCache with FilesystemStorable {
     var data = _store[forPath]!.$1;
     purge(forPath);
     store(forPath, data, clearAfter: newClearAfterDuration);
-  }
-
-  /// Replaces the data at [path] with [data].
-  ///
-  /// Returns the old data.
-  ///
-  /// If [newClearAfterDuration] is null, the data will never expire.
-  ///
-  /// If [path] does not exist, [PathDoesNotExistException] will be thrown.
-  Uint8List replace(String path, Uint8List data,
-      {Duration? newClearAfterDuration}) {
-    if (!_store.containsKey(path)) {
-      throw PathDoesNotExistException(path);
-    }
-
-    var olddata = _store[path]!.$1;
-    purge(path);
-    store(path, data, clearAfter: newClearAfterDuration);
-    return olddata;
   }
 }
