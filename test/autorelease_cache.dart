@@ -20,30 +20,20 @@ void main() async {
   test('Data stores and is able to be gotten later', () async {
     expect(cache!.store("/reallycooldata", testData, clearAfter: null),
         equals(true));
-    expect(await cache!.grab("/reallycooldata"), equals(testData));
+    expect(await cache!.load("/reallycooldata"), equals(testData));
   });
 
   test('Data can be purged', () async {
     cache!.store("/reallycooldata", testData, clearAfter: null);
     expect(cache!.purge("/reallycooldata"), equals(true));
-    expect(await cache!.grab("/reallycooldata"), equals(null));
+    expect(await cache!.load("/reallycooldata"), equals(null));
   });
 
   await File("${Directory.systemTemp.path}/rbws.test").writeAsBytes(testData);
 
   test('Data can be stored from disk', () async {
-    expect(await cache!.storeFromDisk("${Directory.systemTemp.path}/rbws.test"),
-        equals(testData.length));
-    expect(await cache!.grab("${Directory.systemTemp.path}/rbws.test"),
+    expect(await cache!.load("${Directory.systemTemp.path}/rbws.test"),
         equals(testData));
-  });
-
-  test('Data can be stored from disk with a false path', () async {
-    expect(
-        await cache!.storeFromDiskWithFalsePath(
-            "${Directory.systemTemp.path}/rbws.test", "random"),
-        equals(testData.length));
-    expect(await cache!.grab("random"), equals(testData));
   });
 
   test('contains', () {
@@ -55,27 +45,13 @@ void main() async {
     for (int i = 0; i < 10; i++) {
       cache!.store("/$i", testData);
     }
-    cache!.clear();
+    cache!.purgeAll();
     for (int i = 0; i < 10; i++) {
-      expect(await cache!.grab("/$i", cacheIfNotAlready: false), equals(null));
+      expect(await cache!.load("/$i"), equals(null));
     }
   });
 
-  test('Store can replace data', () {
-    cache!.store("/replaced", testData);
-    expect(cache!.replace("/replaced", testData2), equals(testData));
-
-    cache!.grab("/replaced").then((val) {
-      expect(val, equals(testData2));
-    });
-  });
-
   group('[Exception]', () {
-    test('replace() throws PathDoesNotExistException', () {
-      expect(() => cache!.replace("/dne", testData),
-          throwsA(isA<PathDoesNotExistException>()));
-    });
-
     test('setNewExpiration() throws PathDoesNotExistException', () {
       expect(() => cache!.setNewExpiration("/still-dne"),
           throwsA(isA<PathDoesNotExistException>()));
@@ -89,7 +65,7 @@ void main() async {
               clearAfter: Duration(seconds: 1)),
           equals(true));
       var delayedCheck = await Future.delayed(Duration(seconds: 3), () {
-        return cache!.grab("/reallycooldata");
+        return cache!.load("/reallycooldata");
       });
       expect(delayedCheck, equals(null),
           reason:
