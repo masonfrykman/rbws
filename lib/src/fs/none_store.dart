@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'filesystem_interface.dart';
+import 'filesystem_storable.dart';
 
 /// Loads from the filesystem with no restriction and no storing.
 ///

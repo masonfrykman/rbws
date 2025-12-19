@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:io';
 
 import '../exceptions/path_dne.dart';
-import 'filesystem_interface.dart';
+import 'filesystem_storable.dart';
 
 /// Stores paths that correspond to data. Also, optionally, stores the data with a timer that will fire and clear said data.
 ///

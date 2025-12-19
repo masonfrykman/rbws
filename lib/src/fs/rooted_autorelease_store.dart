@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'autorelease_cache.dart';
+import 'autorelease_store.dart';
 
 /// Loads and stores files from the filesystem restricted to a certain directory.
 class RootedAutoreleasingStore extends AutoreleasingStore {
