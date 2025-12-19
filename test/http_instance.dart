@@ -32,9 +32,9 @@ void main() {
   }
 
   setUp(() async {
-    instance = HTTPServerInstance("127.0.0.1", 45619,
-        generalServeRoot:
-            "${Directory.systemTemp.path}/rbws-test-webroot/public");
+    instance = HTTPServerInstance("127.0.0.1", 45619);
+    instance.storage = RootedAutoreleasingStore(
+        "${Directory.systemTemp.path}/rbws-test-webroot/public");
     instance.staticRoutes = {
       (RBWSMethod.get, "/test"): (req) => RBWSResponse.dataFromString(
           200, "test data",
