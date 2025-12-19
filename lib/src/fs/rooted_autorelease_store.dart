@@ -3,13 +3,13 @@ import 'dart:typed_data';
 import 'autorelease_cache.dart';
 
 /// Loads and stores files from the filesystem restricted to a certain directory.
-class RootedAutoreleasingCache extends AutoreleasingCache {
+class RootedAutoreleasingStore extends AutoreleasingStore {
   String _rootPrefix;
 
   /// The prefix being used. Cannot be changed after construction.
   String get rootPrefix => _rootPrefix;
 
-  RootedAutoreleasingCache(this._rootPrefix, {super.defaultStorageDuration}) {
+  RootedAutoreleasingStore(this._rootPrefix, {super.defaultStorageDuration}) {
     if (_rootPrefix.endsWith("/")) {
       // remove the last /
       _rootPrefix = _rootPrefix.substring(0, _rootPrefix.length - 1);

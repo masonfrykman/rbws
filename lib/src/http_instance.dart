@@ -21,7 +21,7 @@ import 'fs/filesystem_interface.dart';
 /// 4. [matchRequestToMethodProcessFunction]
 /// 5. Goes to corresponding method function ex. [processGETRequest]
 /// 6. [tryToMatchStaticRoute]
-/// 7. If GET or HEAD and [generalServeRoot] is defined, will try to match the requested path to a file in [generalServeRoot] and load it through [AutoreleasingCache].
+/// 7. If GET or HEAD and [generalServeRoot] is defined, will try to match the requested path to a file in [generalServeRoot] and load it through [AutoreleasingStore].
 /// 8. [routeNotFound]
 class HTTPServerInstance {
   // *************************
@@ -97,7 +97,7 @@ class HTTPServerInstance {
   // ****************
 
   /// Interface used by the server for loading data from the filesystem.
-  FilesystemStorable storage = AutoreleasingCache();
+  FilesystemStorable storage = AutoreleasingStore();
   dynamic _serverSocket;
 
   HTTPServerInstance(this._host, this._port,

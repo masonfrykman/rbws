@@ -7,10 +7,10 @@ import 'package:rbws/rbws.dart';
 void main() async {
   var testData = utf8.encode("Hello, World!");
   var testData2 = utf8.encode("Goodbye, World!");
-  AutoreleasingCache? cache;
+  AutoreleasingStore? cache;
 
   setUp(() {
-    cache = AutoreleasingCache();
+    cache = AutoreleasingStore();
   });
 
   tearDown(() {

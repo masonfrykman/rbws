@@ -8,13 +8,13 @@ import 'filesystem_interface.dart';
 /// Stores paths that correspond to data. Also, optionally, stores the data with a timer that will fire and clear said data.
 ///
 /// This is the default way that [HTTPServerInstance] loads and stores files (you can find the object it uses at [HTTPServerInstance.storage]).
-class AutoreleasingCache with FilesystemStorable {
+class AutoreleasingStore with FilesystemStorable {
   final Map<String, (Uint8List, Timer?)> _store = {};
 
   /// The amount of time a piece of data will be stored for if unspecified.
   Duration? defaultStorageDuration;
 
-  AutoreleasingCache({this.defaultStorageDuration});
+  AutoreleasingStore({this.defaultStorageDuration});
 
   /// Stores data with a path. Optionally, creates a timer that clears the data after [clearAfter].
   /// If [clearAfter] is null, the timer will be set to fire after [defaultStorageDuration].
