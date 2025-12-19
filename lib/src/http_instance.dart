@@ -21,7 +21,7 @@ import 'fs/filesystem_storable.dart';
 /// 4. [matchRequestToMethodProcessFunction]
 /// 5. Goes to corresponding method function ex. [processGETRequest]
 /// 6. [tryToMatchStaticRoute]
-/// 7. If GET or HEAD and [generalServeRoot] is defined, will try to match the requested path to a file in [generalServeRoot] and load it through [AutoreleasingStore].
+/// 7. If GET or HEAD, Attempts to load a file through [storage] using the request's path.
 /// 8. [routeNotFound]
 class HTTPServerInstance {
   // *************************
@@ -54,18 +54,6 @@ class HTTPServerInstance {
     _port = value;
   }
 
-  /// The root directory for where [processGETRequest] will attempt to load a file from the filesystem and cache it, using [storage].
-  String? get generalServeRoot => _generalServeRoot;
-  String? _generalServeRoot;
-
-  /// Sets the general serve root. (see the getter for more information)
-  set generalServeRoot(val) {
-    if (val == null) {
-      return;
-    }
-    _generalServeRoot = Directory(val).absolute.path;
-  }
-
   /// Routes matched from requested path and method.
   Map<(RBWSMethod, String), FutureOr<RBWSResponse> Function(RBWSRequest)>?
       staticRoutes;
@@ -92,23 +80,20 @@ class HTTPServerInstance {
         toRequest: r);
   };
 
+  /// Interface used by the server for loading data from the filesystem.
+  FilesystemStorable? storage;
+
   // ****************
   // * Internal Use *
   // ****************
 
-  /// Interface used by the server for loading data from the filesystem.
-  FilesystemStorable storage = AutoreleasingStore();
   dynamic _serverSocket;
 
   HTTPServerInstance(this._host, this._port,
-      {String? generalServeRoot,
-      this.staticRoutes,
+      {this.staticRoutes,
       this.securityContext,
       this.onRequest,
-      this.onResponse}) {
-    this.generalServeRoot =
-        generalServeRoot; // Use the setter to fix Windows paths.
-  }
+      this.onResponse});
 
   /// Causes the server to start listening for connections.
   ///
@@ -165,6 +150,8 @@ class HTTPServerInstance {
   }
 
   void _conOnData(Uint8List data, Socket sender) async {
+    // Try to convert the message to a request.
+    // If it's not a request, respond with 400 Bad Request
     RBWSRequest? req;
     try {
       req = RBWSRequest.from(data);
@@ -179,7 +166,8 @@ class HTTPServerInstance {
       return;
     }
 
-    var response = await processRequest(req);
+    // If the request is valid, put the request through the call pipeline.
+    final response = await processRequest(req);
     if (onResponse != null) {
       onResponse!(response);
     }
@@ -276,13 +264,12 @@ class HTTPServerInstance {
       return match;
     }
 
-    // Dynamically load from storage.
-    if (generalServeRoot == null) {
+    // Dynamically load from storage (if not null).
+    if (storage == null) {
       return routeNotFound(request);
     }
 
-    Uint8List? loadAttempt =
-        await storage.load("$generalServeRoot${request.path}");
+    Uint8List? loadAttempt = await storage!.load(request.path);
     if (loadAttempt == null) {
       return routeNotFound(request);
     }
