@@ -10,6 +10,8 @@ import 'filesystem_interface.dart';
 /// This is the default way that [HTTPServerInstance] loads and stores files (you can find the object it uses at [HTTPServerInstance.storage]).
 class AutoreleasingCache with FilesystemStorable {
   final Map<String, (Uint8List, Timer?)> _store = {};
+
+  /// The amount of time a piece of data will be stored for if unspecified.
   Duration? defaultStorageDuration;
 
   AutoreleasingCache({this.defaultStorageDuration});

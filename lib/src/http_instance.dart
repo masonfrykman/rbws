@@ -268,8 +268,7 @@ class HTTPServerInstance {
 
   /// Processes GET requests handled by [processRequest].
   ///
-  /// It will first attempt to match a static route, then, if unsuccessful, will attempt to load a file from the [generalServeRoot] using it's [storage].
-  /// If [storage] loads successfully, it will keep the file for [defaultStorageLength], if defined.
+  /// It will first attempt to match a static route, then, if unsuccessful, will attempt to load a file using [storage].
   Future<RBWSResponse> processGETRequest(RBWSRequest request) async {
     // Check static routes
     RBWSResponse? match = await tryToMatchStaticRoute(request);

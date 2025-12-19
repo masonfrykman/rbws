@@ -13,7 +13,7 @@ enum RBWSMethod {
 
   /// Deduces the HTTP method represented in the argument.
   ///
-  /// If it cannot deduce the method, it will return [RBWSMethod.unrecognized].
+  /// If it cannot deduce the method, it will return null.
   static RBWSMethod fromString(String container) {
     container = container.trim().toLowerCase();
 

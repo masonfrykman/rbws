@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+/// An object that can load from the filesystem given a path.
 mixin FilesystemStorable {
   /// Loads a file from the filesystem given a path, returning the data it contains.
   FutureOr<Uint8List?> load(String path);
