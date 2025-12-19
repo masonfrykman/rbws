@@ -8,7 +8,6 @@ import 'exceptions/server_running.dart';
 import 'http_helpers/http_request.dart';
 import 'http_helpers/http_response.dart';
 import 'http_helpers/http_method.dart';
-import 'fs/autorelease_store.dart';
 import 'fs/filesystem_storable.dart';
 
 /// The main object that accepts connections, recieves requests, and generates / sends responses.
@@ -93,7 +92,8 @@ class HTTPServerInstance {
       {this.staticRoutes,
       this.securityContext,
       this.onRequest,
-      this.onResponse});
+      this.onResponse,
+      this.storage});
 
   /// Causes the server to start listening for connections.
   ///
