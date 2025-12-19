@@ -37,11 +37,12 @@ void main(List<String> args) async {
   }
 
   HTTPServerInstance server = HTTPServerInstance("localhost", 80,
-      generalServeRoot: "example/public", onResponse: logResponseInsecure);
+      storage: RootedAutoreleasingStore("./example/public"),
+      onResponse: logResponseInsecure);
   server.referralToSecureServer = "https://localhost:443";
 
   HTTPServerInstance secure = HTTPServerInstance("localhost", 443,
-      generalServeRoot: "example/public",
+      storage: RootedAutoreleasingStore("./example/public"),
       onResponse: logResponseSecure,
       securityContext: context);
 
