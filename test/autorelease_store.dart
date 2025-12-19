@@ -16,6 +16,13 @@ void main() async {
     cache = null;
   });
 
+  tearDownAll(() {
+    // Clean up webroot
+    if (File("${Directory.systemTemp.path}/rbws.test").existsSync()) {
+      File("${Directory.systemTemp.path}/rbws.test").deleteSync();
+    }
+  });
+
   test('Data stores and is able to be gotten later', () async {
     expect(cache!.store("/reallycooldata", testData, clearAfter: null),
         equals(true));
