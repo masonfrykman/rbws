@@ -4,6 +4,7 @@
 - Added FilesystemStorable, a mixin to standardize classes that load & store from the filesystem.
 - AutoreleasingCache now conforms to FilesystemStorable.
 - HTTPServerInstance.storage is now typed as FilesystemStorable.
+- Added RootedAutoreleasingCache, an extension of AutoreleasingCache that loads files from a specified prefix.
 - **Breaking**: Removed AutoreleasingCache.storeFromDisk(), use load().
 - **Breaking**: Removed AutoreleasingCache.storeFromDiskWithFalsePath(), use load() in combination with store().
 - **Breaking**: Removed AutoreleasingCache.replace(), use purge() then store().
