@@ -61,7 +61,7 @@ void main() async {
     final notExistLoad = await store.load("/public/index.html");
     File("${Directory.systemTemp.path}/rbws-test-webroot/public/index.html")
         .writeAsBytesSync(ct); // Restore file
-    expect(existLoad, isNotNull,
+    expect(notExistLoad, isNotNull,
         reason:
             ".load() should store files for the amount of time set as [defaultStorageDuration]");
   });
