@@ -21,6 +21,7 @@ class RootedAutoreleasingStore extends AutoreleasingStore {
     if (!path.startsWith("/")) {
       path = "/$path";
     }
+    if (path.startsWith(_rootPrefix)) return path; // Already prefixed
     return _rootPrefix + path;
   }
 
