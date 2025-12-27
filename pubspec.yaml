@@ -1,6 +1,6 @@
 name: rbws
 description: really bad web server (another generic http/1.1 server implementation)
-version: 2.0.1
+version: 3.0.0-pr1
 repository: https://github.com/masonfrykman/rbws
 
 topics:

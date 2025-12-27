@@ -1,4 +1,4 @@
-## (next major)
+## 3.0.0 (prerelease)
 - **Breaking**: Renamed AutoreleasingCache.grab() to load() to conform to FilesystemStorable.
 - **Breaking**: Renamed AutoreleasingCache.clear() to purgeAll() to conform to FilesystemStorable.
 - Added FilesystemStorable, a mixin to standardize classes that load & store from the filesystem.

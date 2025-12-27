@@ -7,9 +7,9 @@ Another generic HTTP/1.1 web server implementation using ```dart:io```.
 ## Features :D
 
 - Matches request paths to files from a defined document root.
-    - **To enable:** Set the ```generalServeRoot``` property on an ```HTTPServerInstance```.
+    - **To enable:** Set the ```storage``` property on an ```HTTPServerInstance``` to be a ```RootedAutoreleasingStore``` object.
 - Stores files loaded from filesystem in a cache that will clear the file after an arbitrary amount of time.
-    - The amount of time defaults to a day. The duration can be changed by setting ```defaultStorageLength```.
+    - The amount of time defaults to a day. The duration can be changed by setting ```defaultStorageDuration``` on an ```AutoreleasingStore``` object.
 - Matches request paths to static handler functions.
     - **To enable:** Populate the ```staticRoutes``` map on an ```HTTPServerInstance```.
 - Redirects insecure requests to a secure version.
