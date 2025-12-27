@@ -22,10 +22,6 @@ void main() {
         specimin = s;
         passedSetup = true;
       }
-
-      for (var header in specimin.headers.values) {
-        print(header);
-      }
     });
 
     test("out a regular header", () {

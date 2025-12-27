@@ -9,27 +9,27 @@ import 'dart:io';
 void main() {
   late HTTPServerInstance instance;
 
-  print("Setting up test web root");
-
-  if (!File("test/resource/webroot.zip").existsSync()) {
-    stderr.write(
-        "Failed to find webroot.zip. Make sure you're running from the project root directory.");
-    exit(2);
-  }
-
-  var zipBytes = File("test/resource/webroot.zip").readAsBytesSync();
-  var zip = ZipDecoder().decodeBytes(zipBytes, verify: true);
-  Directory("${Directory.systemTemp.path}/rbws-test-webroot").createSync();
-
-  for (var file in zip) {
-    if (file.isFile) {
-      File("${Directory.systemTemp.path}/rbws-test-webroot/${file.name}")
-          .writeAsBytesSync(file.content, flush: true);
-    } else {
-      Directory("${Directory.systemTemp.path}/rbws-test-webroot/${file.name}")
-          .createSync(recursive: true);
+  setUpAll(() {
+    if (!File("test/resource/webroot.zip").existsSync()) {
+      stderr.write(
+          "Failed to find webroot.zip. Make sure you're running from the project root directory.");
+      exit(2);
     }
-  }
+
+    var zipBytes = File("test/resource/webroot.zip").readAsBytesSync();
+    var zip = ZipDecoder().decodeBytes(zipBytes, verify: true);
+    Directory("${Directory.systemTemp.path}/rbws-test-webroot").createSync();
+
+    for (var file in zip) {
+      if (file.isFile) {
+        File("${Directory.systemTemp.path}/rbws-test-webroot/${file.name}")
+            .writeAsBytesSync(file.content, flush: true);
+      } else {
+        Directory("${Directory.systemTemp.path}/rbws-test-webroot/${file.name}")
+            .createSync(recursive: true);
+      }
+    }
+  });
 
   setUp(() async {
     instance = HTTPServerInstance("127.0.0.1", 45619);
