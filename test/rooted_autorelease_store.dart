@@ -33,6 +33,12 @@ void main() async {
     }
   });
 
+  tearDownAll(() {
+    // Clean up webroot
+    Directory("${Directory.systemTemp.path}/rbws-test-webroot")
+        .deleteSync(recursive: true);
+  });
+
   group("store() / load()", () {
     test("Can load from a valid path", () async {
       final fromStore = await store.load("/public/index.html");
@@ -97,6 +103,36 @@ void main() async {
       final loadValidPathNotExisting =
           store.contains("/public/subpage/blah.html");
       expect(loadValidPathNotExisting, isFalse);
+    });
+  });
+
+  group("purge()", () {
+    test("can purge a file loaded from the filesystem", () async {
+      final loadFromFS = await store.load("/public/subpage/blah.html");
+      expect(loadFromFS, isNotNull);
+
+      final purge = store.purge("/public/subpage/blah.html");
+      expect(purge, isTrue);
+
+      final contains = store.contains("/public/subpage/blah.html");
+      expect(contains, isFalse,
+          reason: "contains() should return false for a purged path.");
+    });
+
+    test("can purge a file loaded by store()", () async {
+      final storeOp = store.store("/purge-test", utf8.encode("test data"));
+      expect(storeOp, isTrue);
+
+      final purgeOp = store.purge("/purge-test");
+      expect(purgeOp, isTrue);
+
+      final attemptLoad = await store.load("/purge-test");
+      expect(attemptLoad, isNull);
+    });
+
+    test("returns false for an invalid path", () {
+      final invalidPurge = store.purge("/this/path/doesnt/exist");
+      expect(invalidPurge, isFalse);
     });
   });
 }
