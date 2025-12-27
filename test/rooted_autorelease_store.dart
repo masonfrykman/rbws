@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:archive/archive.dart';
 import 'package:test/test.dart';
 import 'package:rbws/rbws.dart';
@@ -31,38 +33,70 @@ void main() async {
     }
   });
 
-  test("Can load from a valid path", () async {
-    final fromStore = await store.load("/public/index.html");
-    final fromKnownPath =
-        File("${Directory.systemTemp.path}/rbws-test-webroot/public/index.html")
-            .readAsBytesSync();
+  group("store() / load()", () {
+    test("Can load from a valid path", () async {
+      final fromStore = await store.load("/public/index.html");
+      final fromKnownPath = File(
+              "${Directory.systemTemp.path}/rbws-test-webroot/public/index.html")
+          .readAsBytesSync();
 
-    expect(fromStore, isNotNull);
-    expect(fromStore, equals(fromKnownPath));
+      expect(fromStore, isNotNull);
+      expect(fromStore, equals(fromKnownPath));
+    });
+
+    test("Does not load from an invalid path", () async {
+      expect(await store.load("/blahblahblah"), isNull,
+          reason:
+              "The path '/blahblahblah' does not exist, .load() should return null.");
+    });
+
+    test("Should store from filesystem", () async {
+      final existLoad = await store.load("/public/index.html");
+      expect(existLoad, isNotNull);
+
+      final ct = File(
+              "${Directory.systemTemp.path}/rbws-test-webroot/public/index.html")
+          .readAsBytesSync();
+
+      File("${Directory.systemTemp.path}/rbws-test-webroot/public/index.html")
+          .deleteSync();
+
+      final notExistLoad = await store.load("/public/index.html");
+      File("${Directory.systemTemp.path}/rbws-test-webroot/public/index.html")
+          .writeAsBytesSync(ct); // Restore file
+      expect(notExistLoad, isNotNull,
+          reason:
+              ".load() should store files for the amount of time set as [defaultStorageDuration]");
+    });
+
+    test("Should store without filesystem", () async {
+      final storeData = utf8.encode("hey!");
+      final sPath = "/fake_path";
+
+      final storeOp = store.store(sPath, storeData);
+      expect(storeOp, isTrue);
+
+      final load = await store.load(sPath);
+      expect(load, equals(storeData));
+    });
   });
 
-  test("Does not load from an invalid path", () async {
-    expect(await store.load("/blahblahblah"), isNull,
-        reason:
-            "The path '/blahblahblah' does not exist, .load() should return null.");
-  });
+  group("contains()", () {
+    test("returns true for valid path", () {
+      final loadFakePath = store.contains(
+          "/fake_path"); // stored in "Should store without filesystem" test.
+      expect(loadFakePath, isTrue);
+    });
 
-  test("Should store", () async {
-    final existLoad = await store.load("/public/index.html");
-    expect(existLoad, isNotNull);
+    test("returns false for invalid path", () {
+      final loadNotExisting = store.contains("/this_doesnt_exist_in_any_way");
+      expect(loadNotExisting, isFalse);
+    });
 
-    final ct =
-        File("${Directory.systemTemp.path}/rbws-test-webroot/public/index.html")
-            .readAsBytesSync();
-
-    File("${Directory.systemTemp.path}/rbws-test-webroot/public/index.html")
-        .deleteSync();
-
-    final notExistLoad = await store.load("/public/index.html");
-    File("${Directory.systemTemp.path}/rbws-test-webroot/public/index.html")
-        .writeAsBytesSync(ct); // Restore file
-    expect(notExistLoad, isNotNull,
-        reason:
-            ".load() should store files for the amount of time set as [defaultStorageDuration]");
+    test("returns false for an existing but not loaded path", () async {
+      final loadValidPathNotExisting =
+          store.contains("/public/subpage/blah.html");
+      expect(loadValidPathNotExisting, isFalse);
+    });
   });
 }
