@@ -3,12 +3,12 @@ import 'dart:async';
 import 'dart:io';
 
 import '../exceptions/path_dne.dart';
-import 'filesystem_storable.dart';
+import 'store.dart';
 
 /// Stores paths that correspond to data. Also, optionally, stores the data with a timer that will fire and clear said data.
 ///
 /// This is the default way that [HTTPServerInstance] loads and stores files (you can find the object it uses at [HTTPServerInstance.storage]).
-class AutoreleasingStore with FilesystemStorable {
+class AutoreleasingStore with Store {
   final Map<String, (Uint8List, Timer?)> _store = {};
 
   /// The amount of time a piece of data will be stored for if unspecified.

@@ -1,8 +1,9 @@
 // ## Filesystem
 export 'src/fs/autorelease_store.dart' show AutoreleasingStore;
-export 'src/fs/filesystem_storable.dart' show FilesystemStorable;
+export 'src/fs/store.dart' show Store;
 export 'src/fs/rooted_autorelease_store.dart' show RootedAutoreleasingStore;
 export 'src/fs/none_store.dart' show NoneStore;
+export 'src/fs/rooted_none_store.dart' show RootedNoneStore;
 
 // ## HTTP
 export 'src/http_instance.dart' show HTTPServerInstance;
