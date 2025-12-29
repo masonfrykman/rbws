@@ -14,3 +14,6 @@ export 'src/http_helpers/http_status.dart' show HTTPStatusCode;
 // ## Exceptions
 export 'src/exceptions/path_dne.dart' show PathDoesNotExistException;
 export 'src/exceptions/server_running.dart' show ServerRunningException;
+
+// ## Util
+export 'src/util/rooted.dart' show Rooted;

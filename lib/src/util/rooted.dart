@@ -1,6 +1,6 @@
 /// Provides a standard way of prefixing a root.
 mixin Rooted {
-  /// The root used for prefixing.
+  /// The root used for prefixing. Must be provided by the implementer.
   String get root;
 
   /// Cleans and prefixes a path with the [root]
