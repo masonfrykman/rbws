@@ -1,3 +1,9 @@
+## 3.0.0-pr2
+- Added Rooted, a mixin to standardize prefixing paths.
+- RootedAutoreleasingStore now conforms to Rooted.
+- Added RootedNoneStore, a subclass of NoneStore that provides a root. Uses Rooted.
+- **Breaking**: Renamed FilesystemStorable to Store.
+
 ## 3.0.0-pr1
 - **Breaking**: Renamed AutoreleasingCache.grab() to load() to conform to FilesystemStorable.
 - **Breaking**: Renamed AutoreleasingCache.clear() to purgeAll() to conform to FilesystemStorable.
