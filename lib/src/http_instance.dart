@@ -138,7 +138,7 @@ class HTTPServerInstance {
 
   void _socketOnListen(Socket connection) {
     connection.setOption(SocketOption.tcpNoDelay, true);
-    connection.listen((data) => _conOnData(data, connection),
+    connection.listen((data) => _connectionDataHandler(data, connection),
         onError: (err, stack) {
       stderr.writeln(
           "HTTPServerInstance encountered an error while listening for connections!");
@@ -149,7 +149,7 @@ class HTTPServerInstance {
     });
   }
 
-  void _conOnData(Uint8List data, Socket sender) async {
+  void _connectionDataHandler(Uint8List data, Socket sender) async {
     // Try to convert the message to a request.
     // If it's not a request, respond with 400 Bad Request
     RBWSRequest? req;
