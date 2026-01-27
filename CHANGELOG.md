@@ -1,6 +1,7 @@
-## 3.0.0-pr3 (planned)
+## 3.0.0-pr3
 - **Breaking**: Remove Rooted from the public API.
 - Renamed internal function HTTPServerInstance._conOnData to ._connectionDataHandler for clarity.
+- Fixed logic error in Rooted.prefixed()
 
 ## 3.0.0-pr2
 - Added Rooted, a mixin to standardize prefixing paths.
