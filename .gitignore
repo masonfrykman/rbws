@@ -6,3 +6,4 @@ local_cert/
 pubspec.lock
 
 example/cert
+.vscode/
