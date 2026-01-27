@@ -1,3 +1,6 @@
+## 3.0.0-pr4
+- Fixed bug in RootedAutoreleasingStore.setNewExpiration where path wasn't being prefixed.
+
 ## 3.0.0-pr3
 - **Breaking**: Remove Rooted from the public API.
 - Renamed internal function HTTPServerInstance._conOnData to ._connectionDataHandler for clarity.

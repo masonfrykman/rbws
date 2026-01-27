@@ -17,11 +17,11 @@ class NoneStore with Store {
     return await file.readAsBytes();
   }
 
-  /// Does nothing.
+  /// Does nothing, only defined to conform to [Store].
   @override
   void purge(String path) {}
 
-  /// Does nothing.
+  /// Does nothing, only defined to conform to [Store].
   @override
   void purgeAll() {}
 

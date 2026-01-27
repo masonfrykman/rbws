@@ -4,6 +4,7 @@ import 'autorelease_store.dart';
 import '../util/rooted.dart';
 
 /// Loads and stores files from the filesystem restricted to a certain directory.
+/// After a specified [defaultStorageDuration], the data associated with a path is purged.
 class RootedAutoreleasingStore extends AutoreleasingStore with Rooted {
   String _rootPrefix;
 
@@ -37,5 +38,11 @@ class RootedAutoreleasingStore extends AutoreleasingStore with Rooted {
   @override
   bool purge(String path) {
     return super.purge(prefixed(path));
+  }
+
+  @override
+  void setNewExpiration(String forPath, {Duration? newClearAfterDuration}) {
+    super.setNewExpiration(prefixed(forPath),
+        newClearAfterDuration: newClearAfterDuration);
   }
 }
