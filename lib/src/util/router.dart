@@ -33,19 +33,53 @@ class RouteTree {
     }
     return null;
   }
+
+  void register(RBWSMethod method, String path,
+      {required FutureOr<RBWSResponse> Function(
+              RBWSRequest, Map<String, String>)
+          handler}) {
+    if (path.isEmpty) return;
+    if (path == "/") {
+      rootHandler = (RBWSRequest request) => handler(request, {});
+      return;
+    }
+
+    if (!_tree.containsKey(method)) {
+      _tree[method] = {};
+    }
+
+    final components = path.split("/");
+
+    // Try to find a top level entry that shares the same top component
+    bool foundTopLevelEntry = false;
+
+    for (final entry in _tree[method]!) {
+      if (entry.component == components.first) {
+        entry.insert(method, components, handler: handler);
+        foundTopLevelEntry = true;
+        break;
+      }
+    }
+
+    if (!foundTopLevelEntry) {
+      final _RTEntry tle = _RTEntry(components.first);
+      tle.insert(method, components, handler: handler);
+      _tree[method]!.add(tle);
+    }
+  }
 }
 
 class _RTEntry {
   String component; // ex. "/one/two/three" -> "two" or "three"
   Set<_RTEntry> children = {};
-  FutureOr<RBWSResponse> Function(RBWSRequest, String, Map<String, String>)?
+  FutureOr<RBWSResponse> Function(RBWSRequest, Map<String, String>)?
       endpointHandler;
 
   bool get isEndpoint => endpointHandler != null;
 
-  _RTEntry(this.component);
+  _RTEntry(this.component, {this.endpointHandler});
 
-  bool _isWildcardPattern(String component) =>
+  bool _isPlaceholderPattern(String component) =>
       component.startsWith("<") && component.endsWith(">") && component != "<>";
 
   FutureOr<RBWSResponse?> handleDown(RBWSRequest req, List<String> pathStack,
@@ -53,18 +87,18 @@ class _RTEntry {
     if (pathStack.isEmpty) return null;
 
     final pop = pathStack.removeAt(0);
-    if (!_isWildcardPattern(component) && pop != component) {
+    if (!_isPlaceholderPattern(component) && pop != component) {
       return null; // not for us.
     }
 
-    if (_isWildcardPattern(component)) {
+    if (_isPlaceholderPattern(component)) {
       String key = component.substring(1, component.length - 1);
       placeholders[key] = pop;
     }
 
     if (pathStack.isEmpty && this.isEndpoint) {
       // we're the leaf
-      return endpointHandler!(req, pop, placeholders);
+      return endpointHandler!(req, placeholders);
     }
 
     _RTEntry? wildcard;
@@ -90,5 +124,16 @@ class _RTEntry {
     }
 
     return null;
+  }
+
+  void insert(RBWSMethod method, List<String> componentStack,
+      {required FutureOr<RBWSResponse> Function(
+              RBWSRequest, Map<String, String>)
+          handler}) {
+    if (componentStack.isEmpty) {}
+
+    // Pop top component off the stack
+    final pop = componentStack.removeAt(0);
+    // TODO: finish writing this fn
   }
 }
