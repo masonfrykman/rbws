@@ -4,30 +4,33 @@ import 'dart:isolate';
 import 'dart:typed_data';
 
 class Connection {
-  final RawSocket _socket;
+  RawSocket? socket;
 
-  Connection(this._socket);
+  Connection(this.socket);
 
   List<int> writeBuffer = [];
 
   void _socketEvent(RawSocketEvent event) {
+    if (socket == null) return;
+    print(event);
+
     switch (event) {
       case RawSocketEvent.write:
-        int written = _socket.write(writeBuffer);
+        int written = socket!.write(writeBuffer);
         writeBuffer.removeRange(0, written);
         if (writeBuffer.isNotEmpty) {
-          _socket.writeEventsEnabled = true;
+          socket!.writeEventsEnabled = true;
         }
         break;
       case RawSocketEvent.read:
         List<int> readBuffer = [];
-        while (_socket.available() > 0) {
-          List<int> read = _socket.read() ?? [];
+        while (socket!.available() > 0) {
+          List<int> read = socket!.read() ?? [];
           readBuffer.addAll(read);
         }
 
         if (readBuffer.isNotEmpty) {
-          _recievedMessage(Uint8List.fromList(readBuffer));
+          _receivedMessage(Uint8List.fromList(readBuffer));
         }
         break;
       case RawSocketEvent.readClosed:
@@ -40,29 +43,38 @@ class Connection {
   final ReceivePort _inward = ReceivePort();
   StreamSubscription? _inwardListener;
 
-  void _recievedMessage(Uint8List msg) {
+  void _receivedMessage(Uint8List msg) {
     _outward?.send(msg);
   }
 
   void _write(List<int> msg) {
+    if (socket == null) return;
+
     writeBuffer.addAll(msg);
-    if (!_socket.writeEventsEnabled) {
-      _socket.writeEventsEnabled = true;
+    if (!socket!.writeEventsEnabled) {
+      socket!.writeEventsEnabled = true;
     }
   }
 
   void startIsolated(SendPort outward) {
     if (_outward != null) return; // Prevent double start
 
+    print("Cn.startIsolated");
     _outward = outward;
     outward.send(_inward.sendPort); // Give our send port to the outside.
 
     _inwardListener = _inward.listen((message) {
-      if (message is! List<int>) return;
-      _write(message);
+      print("Cn.msg: $message");
+      if (message is List<int>) {
+        print("receieved message");
+        _write(message);
+      } else if (message is RawSocket) {
+        print("Receieved RawSocket");
+        socket ??= message
+          ..listen(_socketEvent)
+          ..readEventsEnabled = true;
+      }
     });
-
-    _socket.listen(_socketEvent);
   }
 
   void stop() async {

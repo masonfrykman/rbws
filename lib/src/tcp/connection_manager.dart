@@ -5,33 +5,42 @@ import 'dart:typed_data';
 import 'connection.dart';
 
 class ConnectionManager {
-  ConnectionDelegate? delegate;
+  WeakReference<ConnectionDelegate>? delegate;
 
   Connection? _connection;
+  RawSocket? _hold;
 
   Isolate? _connectionIsolate;
-  final ReceivePort _port = ReceivePort();
+  ReceivePort? _port;
   SendPort? _portToConnection;
 
   ConnectionManager() {
-    _port.listen(_receivedMessage);
+    _port = ReceivePort()..listen(_receivedMessage);
   }
 
   /// Handles messages recieved on [_port]
   void _receivedMessage(dynamic message) {
     if (message is SendPort) {
+      print("Caught SendPort in mgr, sending the RawSocket");
       _portToConnection ??= message;
+      //_portToConnection!.send(_hold);
+      //_hold = null;
     } else if (message is Uint8List) {
-      delegate?._connectionReceivedMessage(this, message);
+      delegate?.target?._connectionReceivedMessage(this, message);
     }
   }
 
   void start(RawSocket socket) async {
     if (_connection != null) return;
+    _hold = socket;
+    print("Mgr.start");
+    _port ??= ReceivePort()..listen(_receivedMessage);
 
-    _connection = Connection(socket);
-    _connectionIsolate =
-        await Isolate.spawn(_connection!.startIsolated, _port.sendPort);
+    _connectionIsolate = await Isolate.spawn((sp) {
+      print("Isolate spawned, $sp");
+      Connection cn = Connection(socket);
+      cn.startIsolated(sp);
+    }, _port!.sendPort);
   }
 
   void sendMessage(Uint8List message) {

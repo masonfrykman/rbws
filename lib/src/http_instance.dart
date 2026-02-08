@@ -9,6 +9,7 @@ import 'http_helpers/http_request.dart';
 import 'http_helpers/http_response.dart';
 import 'http_helpers/http_method.dart';
 import 'fs/store.dart';
+import 'tcp/connection_manager.dart';
 
 /// The main object that accepts connections, recieves requests, and generates / sends responses.
 ///
@@ -22,7 +23,7 @@ import 'fs/store.dart';
 /// 6. [tryToMatchStaticRoute]
 /// 7. If GET or HEAD, Attempts to load a file through [storage] using the request's path.
 /// 8. [routeNotFound]
-class HTTPServerInstance {
+class HTTPServerInstance with ConnectionDelegate {
   // *************************
   // * General Configuration *
   // *************************
@@ -100,6 +101,7 @@ class HTTPServerInstance {
   /// If [securityContext] is not null, then it will use the [SecureServerSocket.bind] method. Otherwise, it will use [ServerSocket.bind].
   void start() async {
     if (securityContext != null) {
+      // TODO: secure implementation using RawSecureServerSocket
       // Secure server
       _serverSocket = await SecureServerSocket.bind(host, port, securityContext,
           supportedProtocols: ["http/1.1"])
@@ -120,12 +122,12 @@ class HTTPServerInstance {
     }
 
     // securityContext == null (Insecure server)
-    _serverSocket = await ServerSocket.bind(host, port)
+    _serverSocket = await RawServerSocket.bind(host, port)
       ..handleError((err) {
         stderr.writeln("Server encountered an error!");
         stderr.writeln("\tError type: '${err.runtimeType}'");
         stderr.writeln("\tStack trace: ${err.runtimeType}");
-      }).listen((socket) => _socketOnListen(socket), cancelOnError: false);
+      }).listen((socket) => _handleNewRawSocket(socket), cancelOnError: false);
   }
 
   /// Stops accepting connections.
@@ -134,6 +136,19 @@ class HTTPServerInstance {
       await _serverSocket.close();
       _serverSocket = null;
     }
+  }
+
+  void _connectionReceivedMessage(ConnectionManager sender, Uint8List data) {
+    print(data);
+  }
+
+  /// Handles a raw socket connection
+  void _handleNewRawSocket(RawSocket socket) {
+    print("New socket");
+    socket.setOption(SocketOption.tcpNoDelay, true);
+    final wrapper = ConnectionManager();
+    wrapper.delegate = WeakReference(this);
+    wrapper.start(socket);
   }
 
   void _socketOnListen(Socket connection) {
