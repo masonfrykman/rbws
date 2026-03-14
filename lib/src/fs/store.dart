@@ -14,4 +14,12 @@ mixin Store {
 
   /// Whether there's data being stored associated with a path.
   bool contains(String path);
+
+  /// When a file will expire.
+  ///
+  /// If the returned value is after [DateTime.now], then it can reasonably be
+  /// expected that [load] for [path] will return the same content as when it was last loaded.
+  ///
+  /// If the returned value is null, then the store is not holding data for [path].
+  DateTime? expirationOf(String path);
 }

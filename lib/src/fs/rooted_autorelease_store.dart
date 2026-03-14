@@ -21,8 +21,10 @@ class RootedAutoreleasingStore extends AutoreleasingStore with Rooted {
 
   @override
   Future<Uint8List?> load(String path, {Duration? ifNotCachedClearAfter}) {
-    return super
-        .load(prefixed(path), ifNotCachedClearAfter: ifNotCachedClearAfter);
+    return super.load(
+      prefixed(path),
+      ifNotCachedClearAfter: ifNotCachedClearAfter,
+    );
   }
 
   @override
@@ -42,7 +44,14 @@ class RootedAutoreleasingStore extends AutoreleasingStore with Rooted {
 
   @override
   void setNewExpiration(String forPath, {Duration? newClearAfterDuration}) {
-    super.setNewExpiration(prefixed(forPath),
-        newClearAfterDuration: newClearAfterDuration);
+    super.setNewExpiration(
+      prefixed(forPath),
+      newClearAfterDuration: newClearAfterDuration,
+    );
+  }
+
+  @override
+  DateTime? expirationOf(String path) {
+    return super.expirationOf(prefixed(path));
   }
 }

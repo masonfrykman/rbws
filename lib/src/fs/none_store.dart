@@ -30,4 +30,7 @@ class NoneStore with Store {
   bool contains(String path) {
     return File(path).existsSync();
   }
+
+  @override
+  DateTime? expirationOf(String path) => null; // This store doesn't hold data.
 }

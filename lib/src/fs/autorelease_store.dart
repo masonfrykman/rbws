@@ -9,7 +9,7 @@ import 'store.dart';
 ///
 /// This is the default way that [HTTPServerInstance] loads and stores files (you can find the object it uses at [HTTPServerInstance.storage]).
 class AutoreleasingStore with Store {
-  final Map<String, (Uint8List, Timer?)> _store = {};
+  final Map<String, (Uint8List, Timer?, DateTime?)> _store = {};
 
   /// The amount of time a piece of data will be stored for if unspecified.
   Duration? defaultStorageDuration;
@@ -36,7 +36,8 @@ class AutoreleasingStore with Store {
           ? null
           : Timer(clearAfter, () {
               _store.remove(path);
-            })
+            }),
+      clearAfter == null ? null : DateTime.now().add(clearAfter),
     );
 
     return true;
@@ -55,8 +56,10 @@ class AutoreleasingStore with Store {
   ///
   /// (Note: in API <= 2.0.1, this method was named 'grab')
   @override
-  Future<Uint8List?> load(String path,
-      {Duration? ifNotCachedClearAfter}) async {
+  Future<Uint8List?> load(
+    String path, {
+    Duration? ifNotCachedClearAfter,
+  }) async {
     // If the cache already contains the data, return it.
     if (_store.containsKey(path)) {
       return _store[path]!.$1;
@@ -80,7 +83,7 @@ class AutoreleasingStore with Store {
   /// Removes data associated with [path] from the store, cancelling the timer associated with it if existing.
   @override
   bool purge(String path) {
-    (Uint8List, Timer?)? removal = _store.remove(path);
+    (Uint8List, Timer?, DateTime?)? removal = _store.remove(path);
     if (removal == null) return false;
 
     if (removal.$2 != null) {
@@ -128,4 +131,7 @@ class AutoreleasingStore with Store {
     purge(forPath);
     store(forPath, data, clearAfter: newClearAfterDuration);
   }
+
+  @override
+  DateTime? expirationOf(String path) => _store[path]?.$3;
 }
